@@ -1,0 +1,87 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ArrowLeft } from "lucide-react"
+
+interface ClientInfoFormProps {
+  onSubmit: (name: string, lastName: string, email: string) => void
+  onBack: () => void
+}
+
+export function ClientInfoForm({ onSubmit, onBack }: ClientInfoFormProps) {
+  const [name, setName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [email, setEmail] = useState("")
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (name && lastName && email) {
+      onSubmit(name, lastName, email)
+    }
+  }
+
+  const isValid = name.trim() && lastName.trim() && email.trim().includes("@")
+
+  return (
+    <div>
+      <Button variant="ghost" onClick={onBack} className="mb-4 gap-2">
+        <ArrowLeft className="w-4 h-4" />
+        Volver
+      </Button>
+
+      <h2 className="text-2xl font-bold mb-2">Tus Datos</h2>
+      <p className="text-gray-600 mb-6">
+        Por favor completa tus datos para finalizar la reserva
+      </p>
+
+      <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="name">Nombre *</Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Tu nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="lastName">Apellido *</Label>
+          <Input
+            id="lastName"
+            type="text"
+            placeholder="Tu apellido"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">Email *</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="tu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <p className="text-sm text-gray-500">
+            Te enviaremos la confirmación a este correo
+          </p>
+        </div>
+
+        <Button type="submit" disabled={!isValid} className="w-full" size="lg">
+          Confirmar Turno
+        </Button>
+      </form>
+    </div>
+  )
+}
+
