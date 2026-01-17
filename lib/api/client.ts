@@ -2,6 +2,12 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// Log de la URL base al cargar (solo en cliente)
+if (typeof window !== 'undefined') {
+  console.log('[API Client] Base URL configurada:', API_BASE_URL);
+  console.log('[API Client] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'NO CONFIGURADA');
+}
+
 export interface ApiError {
   message: string;
   statusCode: number;
@@ -23,7 +29,10 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Normalizar URL: eliminar doble slash y asegurar formato correcto
+    const normalizedBaseUrl = this.baseUrl.replace(/\/+$/, ''); // Eliminar trailing slashes
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${normalizedBaseUrl}${normalizedEndpoint}`;
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -33,42 +42,83 @@ class ApiClient {
     // Agregar tenant ID si está disponible
     if (this.tenantId) {
       (headers as Record<string, string>)['x-tenant-id'] = this.tenantId;
-      console.log('[API Client] Sending request with tenantId:', this.tenantId, 'to:', endpoint);
+      console.log('[API Client] Sending request with tenantId:', this.tenantId, 'to:', url);
     } else {
-      console.warn('[API Client] No tenantId set for request to:', endpoint);
+      console.warn('[API Client] No tenantId set for request to:', url);
     }
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
+    // Validar que la URL base no sea localhost en producción
+    if (typeof window !== 'undefined' && this.baseUrl.includes('localhost')) {
+      console.error('[API Client] ⚠️ ADVERTENCIA: Intentando conectarse a localhost en producción. Verifica NEXT_PUBLIC_API_URL en Vercel.');
+    }
+
+    // Log detallado de la request
+    console.log('[API Client] Request details:', {
+      method: options.method || 'GET',
+      url,
+      baseUrl: this.baseUrl,
+      endpoint,
+      hasTenantId: !!this.tenantId,
+      headers: Object.keys(headers),
     });
 
-    if (!response.ok) {
-      let errorData: any;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = { message: response.statusText };
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        // Agregar mode y credentials para CORS
+        mode: 'cors',
+        credentials: 'omit',
+      });
+
+      if (!response.ok) {
+        let errorData: any;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { message: response.statusText };
+        }
+
+        // NestJS validation errors tienen este formato
+        if (errorData.message && Array.isArray(errorData.message)) {
+          errorData.message = errorData.message.join(', ');
+        }
+
+        const error: ApiError = {
+          message: errorData.message || response.statusText,
+          statusCode: response.status,
+        };
+        throw error;
       }
 
-      // NestJS validation errors tienen este formato
-      if (errorData.message && Array.isArray(errorData.message)) {
-        errorData.message = errorData.message.join(', ');
+      // Si la respuesta está vacía (204 No Content), retornar null
+      if (response.status === 204) {
+        return null as T;
       }
 
-      const error: ApiError = {
-        message: errorData.message || response.statusText,
-        statusCode: response.status,
-      };
+      return response.json();
+    } catch (error: any) {
+      // Capturar errores de red (Failed to fetch, CORS, etc.)
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('[API Client] Error de red al conectar con:', url);
+        console.error('[API Client] Base URL configurada:', this.baseUrl);
+        console.error('[API Client] Verifica que:');
+        console.error('  1. NEXT_PUBLIC_API_URL está configurada en Vercel');
+        console.error('  2. El backend está desplegado y accesible');
+        console.error('  3. CORS está configurado correctamente en el backend');
+        
+        const networkError: ApiError = {
+          message: this.baseUrl.includes('localhost') 
+            ? 'Error de conexión: La aplicación está intentando conectarse a localhost. Por favor, configura NEXT_PUBLIC_API_URL en Vercel con la URL de tu backend en producción.'
+            : `Error de conexión: No se pudo conectar con el servidor (${this.baseUrl}). Verifica que el backend esté desplegado y accesible.`,
+          statusCode: 0,
+        };
+        throw networkError;
+      }
+      
+      // Re-lanzar otros errores (ya procesados arriba)
       throw error;
     }
-
-    // Si la respuesta está vacía (204 No Content), retornar null
-    if (response.status === 204) {
-      return null as T;
-    }
-
-    return response.json();
   }
 
   // GET

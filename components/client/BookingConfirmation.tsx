@@ -104,8 +104,12 @@ export function BookingConfirmation({
         startTime.setHours(hours, minutes, 0, 0)
 
         console.log('[BookingConfirmation] Creating appointment with:', {
+          tenantSlug: effectiveTenantSlug,
           startTime: startTime.toISOString(),
           customerEmail: clientEmail,
+          serviceId: service.id,
+          professionalId: professional.id,
+          apiUrl: process.env.NEXT_PUBLIC_API_URL || 'NO CONFIGURADA',
         })
 
         // Crear el turno
@@ -132,7 +136,23 @@ export function BookingConfirmation({
         })
       } catch (error: any) {
         console.error('[BookingConfirmation] Error creating appointment:', error)
-        const errorMessage = error?.response?.data?.message || error?.message || 'Error al crear el turno'
+        
+        // Extraer mensaje de error más descriptivo
+        let errorMessage = 'Error al crear el turno'
+        
+        if (error?.message) {
+          errorMessage = error.message
+        } else if (error?.response?.data?.message) {
+          errorMessage = error.response.data.message
+        } else if (typeof error === 'string') {
+          errorMessage = error
+        }
+        
+        // Si es un error de conexión, agregar información adicional
+        if (error?.statusCode === 0 || errorMessage.includes('conectar') || errorMessage.includes('fetch')) {
+          errorMessage = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet o contacta al soporte.'
+        }
+        
         setError(errorMessage)
         toast.error(errorMessage)
         hasCreatedRef.current = false // Permitir reintento en caso de error
