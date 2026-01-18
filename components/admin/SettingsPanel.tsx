@@ -26,6 +26,8 @@ export function SettingsPanel() {
     email: '',
     phone: '',
     address: '',
+    latitude: undefined,
+    longitude: undefined,
     logoUrl: '',
     primaryColor: '#3b82f6',
     secondaryColor: '#10b981',
@@ -39,6 +41,8 @@ export function SettingsPanel() {
         email: tenant.email || '',
         phone: tenant.phone || '',
         address: tenant.address || '',
+        latitude: tenant.latitude,
+        longitude: tenant.longitude,
         logoUrl: tenant.logoUrl || '',
         primaryColor: tenant.primaryColor || '#3b82f6',
         secondaryColor: tenant.secondaryColor || '#10b981',
@@ -190,7 +194,14 @@ export function SettingsPanel() {
               </div>
               <LocationPicker
                 value={formData.address || ''}
-                onChange={(address) => setFormData({ ...formData, address })}
+                onChange={(address, lat, lng) => {
+                  setFormData({
+                    ...formData,
+                    address,
+                    latitude: lat,
+                    longitude: lng,
+                  })
+                }}
                 label="Dirección"
                 placeholder="Calle, número, ciudad"
               />

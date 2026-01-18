@@ -23,6 +23,8 @@ export interface CreateTenantDto {
   email: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   logoUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
@@ -36,6 +38,8 @@ export interface UpdateTenantDto {
   email?: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   logoUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;

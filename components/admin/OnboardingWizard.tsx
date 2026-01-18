@@ -40,6 +40,8 @@ interface OnboardingData {
   email: string
   phone?: string
   address?: string
+  latitude?: number
+  longitude?: number
   logoUrl?: string
   primaryColor: string
   secondaryColor: string
@@ -127,6 +129,8 @@ export function OnboardingWizard() {
         email: data.email,
         phone: data.phone,
         address: data.address,
+        latitude: data.latitude,
+        longitude: data.longitude,
         primaryColor: data.primaryColor,
         secondaryColor: data.secondaryColor,
         logoUrl: data.logoUrl,
@@ -320,7 +324,13 @@ export function OnboardingWizard() {
                   />
                   <LocationPicker
                     value={data.address || ''}
-                    onChange={(address) => updateData({ address })}
+                    onChange={(address, lat, lng) => {
+                      updateData({
+                        address,
+                        latitude: lat,
+                        longitude: lng,
+                      })
+                    }}
                     label="Dirección"
                     placeholder="Calle, número, ciudad"
                   />

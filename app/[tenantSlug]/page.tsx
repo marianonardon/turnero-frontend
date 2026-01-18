@@ -36,6 +36,16 @@ export default function TenantLandingPage() {
     )
   }
 
+  // Debug: verificar qué datos tiene el tenant
+  useEffect(() => {
+    console.log('🏢 Tenant data:', {
+      name: tenant.name,
+      phone: tenant.phone,
+      address: tenant.address,
+      hasAddress: !!tenant.address,
+    })
+  }, [tenant])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header con más protagonismo para logo y nombre */}
@@ -151,13 +161,22 @@ export default function TenantLandingPage() {
                     <div className="flex-1">
                       <h3 className="font-semibold mb-2">Ubicación</h3>
                       <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tenant.address)}`}
+                        href={
+                          tenant.latitude && tenant.longitude
+                            ? `https://www.google.com/maps?q=${tenant.latitude},${tenant.longitude}`
+                            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tenant.address || '')}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-gray-700 hover:underline block"
                       >
                         {tenant.address}
                       </a>
+                      {tenant.latitude && tenant.longitude && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          Coordenadas: {tenant.latitude.toFixed(6)}, {tenant.longitude.toFixed(6)}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mt-1">
                         Haz clic para ver en Google Maps
                       </p>
