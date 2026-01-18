@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { useAvailability } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
 import { useParams } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import type { Service, Professional } from "@/lib/api/types"
 
 interface DateTimeSelectionProps {
@@ -27,13 +28,35 @@ export function DateTimeSelection({
   const params = useParams()
   const tenantSlug = params?.tenantSlug as string
   const { tenant } = useTenantContext()
+  const queryClient = useQueryClient()
   const [selectedDate, setSelectedDate] = useState<Date>()
   const [selectedTime, setSelectedTime] = useState<string>()
+  
+  // Refrescar disponibilidad cuando se monta el componente (por si acaso hay cambios)
+  useEffect(() => {
+    // Invalidar y refetch availability cuando se entra a este paso
+    queryClient.invalidateQueries({
+      queryKey: ['availability'],
+      exact: false,
+    })
+  }, [queryClient])
 
-  // Resetear hora cuando cambia la fecha
+  // Resetear hora cuando cambia la fecha y refrescar disponibilidad
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date)
     setSelectedTime(undefined)
+    
+    // Refrescar disponibilidad cuando se selecciona una nueva fecha
+    if (date && (tenantSlug || tenant?.slug)) {
+      const effectiveSlug = tenantSlug || tenant?.slug
+      queryClient.invalidateQueries({
+        queryKey: ['availability', effectiveSlug, {
+          professionalId: professional.id,
+          serviceId: service.id,
+          date: format(date, 'yyyy-MM-dd'),
+        }],
+      })
+    }
   }
 
   // Consultar disponibilidad cuando se selecciona una fecha

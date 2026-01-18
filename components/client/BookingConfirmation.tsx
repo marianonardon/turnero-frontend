@@ -127,10 +127,20 @@ export function BookingConfirmation({
         setAppointment(createdAppointment)
         toast.success('Turno creado exitosamente')
         
-        // Invalidar cache de disponibilidad para actualizar los slots disponibles
+        // Invalidar TODAS las queries de disponibilidad (incluye tenantSlug y query en la key)
+        // Esto asegura que cualquier fecha/profesional/servicio se refresque
         queryClient.invalidateQueries({ 
           queryKey: ['availability'],
+          exact: false, // Invalidar todas las queries que empiecen con 'availability'
         })
+        
+        // También refetch inmediatamente las queries activas de availability
+        queryClient.refetchQueries({
+          queryKey: ['availability'],
+          exact: false,
+        })
+        
+        // Invalidar cache de appointments también
         queryClient.invalidateQueries({ 
           queryKey: ['appointments'],
         })
