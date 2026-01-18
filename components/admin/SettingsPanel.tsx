@@ -212,7 +212,7 @@ export function SettingsPanel() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Logo</Label>
+                  <Label htmlFor="logo">Logo</Label>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                       {formData.logoUrl ? (
@@ -221,13 +221,77 @@ export function SettingsPanel() {
                         <Building2 className="w-8 h-8 text-gray-400" />
                       )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2 flex-1">
                       <Input
-                        placeholder="URL del logo"
-                        value={formData.logoUrl || ''}
-                        onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                        id="logo"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            // Validar tamaño (max 5MB)
+                            if (file.size > 5 * 1024 * 1024) {
+                              toast.error('La imagen es demasiado grande. Máximo 5MB')
+                              return
+                            }
+                            // Validar tipo
+                            if (!file.type.startsWith('image/')) {
+                              toast.error('Por favor selecciona un archivo de imagen')
+                              return
+                            }
+                            // Convertir a base64
+                            const reader = new FileReader()
+                            reader.onloadend = () => {
+                              const base64String = reader.result as string
+                              setFormData({ ...formData, logoUrl: base64String })
+                              toast.success('Logo cargado exitosamente')
+                            }
+                            reader.onerror = () => {
+                              toast.error('Error al cargar la imagen')
+                            }
+                            reader.readAsDataURL(file)
+                          }
+                        }}
                       />
-                      <p className="text-xs text-gray-500">Pega la URL de tu logo</p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          type="button"
+                          onClick={() => document.getElementById('logo')?.click()}
+                          className="flex-1"
+                        >
+                          {formData.logoUrl ? 'Cambiar Logo' : 'Subir Logo'}
+                        </Button>
+                        {formData.logoUrl && (
+                          <Button
+                            variant="ghost"
+                            type="button"
+                            size="sm"
+                            onClick={() => setFormData({ ...formData, logoUrl: '' })}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Eliminar
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB
+                      </p>
+                      {/* Opción alternativa: URL */}
+                      <div className="mt-2 pt-2 border-t">
+                        <p className="text-xs text-gray-500 mb-1">O pega una URL:</p>
+                        <Input
+                          placeholder="https://ejemplo.com/logo.png"
+                          value={formData.logoUrl?.startsWith('http') ? formData.logoUrl : ''}
+                          onChange={(e) => {
+                            if (e.target.value.startsWith('http') || e.target.value === '') {
+                              setFormData({ ...formData, logoUrl: e.target.value })
+                            }
+                          }}
+                          className="text-xs"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
