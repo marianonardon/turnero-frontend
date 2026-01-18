@@ -23,6 +23,7 @@ export function SettingsPanel() {
     name: '',
     email: '',
     phone: '',
+    address: '',
     logoUrl: '',
     primaryColor: '#3b82f6',
     secondaryColor: '#10b981',
@@ -35,6 +36,7 @@ export function SettingsPanel() {
         name: tenant.name || '',
         email: tenant.email || '',
         phone: tenant.phone || '',
+        address: tenant.address || '',
         logoUrl: tenant.logoUrl || '',
         primaryColor: tenant.primaryColor || '#3b82f6',
         secondaryColor: tenant.secondaryColor || '#10b981',
@@ -55,6 +57,7 @@ export function SettingsPanel() {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
+          address: formData.address,
         },
       })
       toast.success('Información guardada exitosamente')
@@ -184,6 +187,18 @@ export function SettingsPanel() {
                     placeholder="info@tunegocio.com"
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Dirección</Label>
+                <Input
+                  id="address"
+                  value={formData.address || ''}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Calle, número, ciudad"
+                />
+                <p className="text-xs text-gray-500">
+                  Se mostrará en la landing con enlace a Google Maps
+                </p>
               </div>
 
               <Button

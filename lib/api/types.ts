@@ -6,6 +6,7 @@ export interface Tenant {
   name: string;
   email: string;
   phone?: string;
+  address?: string;
   logoUrl?: string;
   primaryColor: string;
   secondaryColor?: string;
@@ -21,6 +22,7 @@ export interface CreateTenantDto {
   name: string;
   email: string;
   phone?: string;
+  address?: string;
   logoUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
@@ -33,6 +35,7 @@ export interface UpdateTenantDto {
   name?: string;
   email?: string;
   phone?: string;
+  address?: string;
   logoUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
