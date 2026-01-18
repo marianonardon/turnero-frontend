@@ -7,6 +7,8 @@ export interface Tenant {
   email: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   logoUrl?: string;
   primaryColor: string;
   secondaryColor?: string;
