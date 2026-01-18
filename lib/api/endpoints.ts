@@ -36,10 +36,7 @@ export const tenantsApi = {
   update: (id: string, data: UpdateTenantDto) =>
     apiClient.patch<Tenant>(`/tenants/${id}`, data),
   delete: (id: string) => apiClient.delete<void>(`/tenants/${id}`),
-  getBySlug: async (slug: string) => {
-    const tenants = await apiClient.get<Tenant[]>('/tenants');
-    return tenants.find((t) => t.slug === slug);
-  },
+  getBySlug: (slug: string) => apiClient.get<Tenant>(`/tenants/slug/${slug}`),
 };
 
 // ============================================
