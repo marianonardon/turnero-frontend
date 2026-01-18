@@ -98,10 +98,12 @@ export function BookingConfirmation({
       }
 
       try {
-        // Construir fecha y hora completa
+        // Construir fecha y hora completa en UTC para evitar problemas de timezone
         const [hours, minutes] = time.split(':').map(Number)
-        const startTime = new Date(date)
-        startTime.setHours(hours, minutes, 0, 0)
+        // Crear fecha en UTC usando la fecha local pero interpretándola como UTC
+        const dateStr = format(date, 'yyyy-MM-dd')
+        const [year, month, day] = dateStr.split('-').map(Number)
+        const startTime = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0, 0))
 
         console.log('[BookingConfirmation] Creating appointment with:', {
           tenantSlug: effectiveTenantSlug,
