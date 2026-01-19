@@ -59,7 +59,7 @@ function LoginForm() {
         <img 
           src="/agendalo-logo.svg" 
           alt="agendalo" 
-          className="h-8 w-auto"
+          className="h-12 w-auto"
         />
       </div>
       <Card className="w-full max-w-md">

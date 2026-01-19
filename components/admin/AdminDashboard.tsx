@@ -103,7 +103,7 @@ function AdminDashboardContent() {
                 <img 
                   src="/agendalo-logo.svg" 
                   alt="agendalo" 
-                  className="h-6 w-auto"
+                  className="h-10 w-auto"
                 />
               </Link>
               <Button
