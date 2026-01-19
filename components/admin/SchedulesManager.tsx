@@ -119,7 +119,7 @@ export function SchedulesManager() {
 
       {/* Formulario de creación */}
       {isCreating && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border" style={{ borderColor: '#6E52FF40', backgroundColor: '#6E52FF20' }}>
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Nuevo Horario</CardTitle>

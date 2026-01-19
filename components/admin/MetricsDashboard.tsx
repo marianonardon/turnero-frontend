@@ -252,11 +252,11 @@ export function MetricsDashboard() {
             </div>
             <div className="flex items-center gap-1 text-xs mt-1">
               {metrics.revenue.change >= 0 ? (
-                <ArrowUpRight className="w-3 h-3 text-green-600" />
+                <ArrowUpRight className="w-3 h-3" style={{ color: '#C73870' }} />
               ) : (
                 <ArrowDownRight className="w-3 h-3 text-red-600" />
               )}
-              <span className={metrics.revenue.change >= 0 ? "text-green-600" : "text-red-600"}>
+              <span style={{ color: metrics.revenue.change >= 0 ? '#C73870' : '#ef4444' }}>
                 {Math.abs(metrics.revenue.change).toFixed(1)}% vs mes anterior
               </span>
             </div>
@@ -268,17 +268,17 @@ export function MetricsDashboard() {
             <CardTitle className="text-sm font-medium text-gray-600">
               Clientes del Mes
             </CardTitle>
-            <Users className="w-4 h-4 text-blue-600" />
+            <Users className="w-4 h-4" style={{ color: '#6E52FF' }} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.customers.current}</div>
             <div className="flex items-center gap-1 text-xs mt-1">
               {metrics.customers.change >= 0 ? (
-                <ArrowUpRight className="w-3 h-3 text-green-600" />
+                <ArrowUpRight className="w-3 h-3" style={{ color: '#C73870' }} />
               ) : (
                 <ArrowDownRight className="w-3 h-3 text-red-600" />
               )}
-              <span className={metrics.customers.change >= 0 ? "text-green-600" : "text-red-600"}>
+              <span style={{ color: metrics.customers.change >= 0 ? '#C73870' : '#ef4444' }}>
                 {Math.abs(metrics.customers.change).toFixed(1)}% vs mes anterior
               </span>
               <span className="text-gray-500 ml-2">
@@ -293,17 +293,17 @@ export function MetricsDashboard() {
             <CardTitle className="text-sm font-medium text-gray-600">
               Turnos del Mes
             </CardTitle>
-            <Calendar className="w-4 h-4 text-purple-600" />
+            <Calendar className="w-4 h-4" style={{ color: '#6E52FF' }} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.appointments.current}</div>
             <div className="flex items-center gap-1 text-xs mt-1">
               {metrics.appointments.change >= 0 ? (
-                <ArrowUpRight className="w-3 h-3 text-green-600" />
+                <ArrowUpRight className="w-3 h-3" style={{ color: '#C73870' }} />
               ) : (
                 <ArrowDownRight className="w-3 h-3 text-red-600" />
               )}
-              <span className={metrics.appointments.change >= 0 ? "text-green-600" : "text-red-600"}>
+              <span style={{ color: metrics.appointments.change >= 0 ? '#C73870' : '#ef4444' }}>
                 {Math.abs(metrics.appointments.change).toFixed(1)}% vs mes anterior
               </span>
             </div>

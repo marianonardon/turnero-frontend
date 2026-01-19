@@ -223,7 +223,7 @@ export function AppointmentsCalendar() {
       case AppointmentStatus.CANCELLED:
         return <XCircle className="w-4 h-4 text-red-600" />
       case AppointmentStatus.COMPLETED:
-        return <CheckCircle className="w-4 h-4 text-blue-600" />
+        return <CheckCircle className="w-4 h-4" style={{ color: '#6E52FF' }} />
       default:
         return <Clock className="w-4 h-4 text-gray-600" />
     }
@@ -238,7 +238,7 @@ export function AppointmentsCalendar() {
       case AppointmentStatus.CANCELLED:
         return "bg-red-50 border-red-200"
       case AppointmentStatus.COMPLETED:
-        return "bg-blue-50 border-blue-200"
+        return "" // Se maneja con estilo inline para el color agendalo
       default:
         return "bg-gray-50 border-gray-200"
     }
@@ -391,10 +391,10 @@ export function AppointmentsCalendar() {
 
               return (
                 <Card key={data.professional.id} className="overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                  <CardHeader className="border-b" style={{ background: 'linear-gradient(90deg, #6E52FF20 0%, #C7387020 100%)' }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: '#6E52FF' }}>
                           {data.professional.firstName[0]}{data.professional.lastName[0]}
                         </div>
                         <div>
@@ -450,7 +450,8 @@ export function AppointmentsCalendar() {
                               return (
                                 <div
                                   key={apt.id}
-                                  className={`p-2 rounded border ${getStatusColor(apt.status)} transition-all hover:shadow-sm text-xs`}
+                                  className={`p-2 rounded border transition-all hover:shadow-sm text-xs ${getStatusColor(apt.status)}`}
+                                  style={apt.status === AppointmentStatus.COMPLETED ? { backgroundColor: '#6E52FF20', borderColor: '#6E52FF40' } : undefined}
                                 >
                                   <div className="flex items-center justify-between gap-1 mb-1">
                                     <div className="flex items-center gap-1">
@@ -501,7 +502,7 @@ export function AppointmentsCalendar() {
                       <div className="border-t pt-6">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                            <Share2 className="w-4 h-4 text-blue-600" />
+                            <Share2 className="w-4 h-4" style={{ color: '#6E52FF' }} />
                             Slots Libres para Publicitar ({dayData.freeSlots.length})
                           </h4>
                           <Button
@@ -519,7 +520,8 @@ export function AppointmentsCalendar() {
                             <Badge
                               key={idx}
                               variant="outline"
-                              className="bg-green-50 text-green-700 border-green-300 font-mono"
+                              className="font-mono border" 
+                              style={{ backgroundColor: '#C7387020', color: '#C73870', borderColor: '#C7387040' }}
                             >
                               {slot.time}
                             </Badge>
@@ -579,7 +581,7 @@ export function AppointmentsCalendar() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: '#6E52FF' }}>
                         {professional.firstName[0]}{professional.lastName[0]}
                       </div>
                       {professional.fullName}
@@ -651,7 +653,7 @@ export function AppointmentsCalendar() {
         <CardContent className="p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold" style={{ color: '#6E52FF' }}>
                 {filteredAppointments.filter(a => a.status === AppointmentStatus.CONFIRMED).length}
               </p>
               <p className="text-sm text-gray-600">Confirmados</p>
@@ -663,7 +665,7 @@ export function AppointmentsCalendar() {
               <p className="text-sm text-gray-600">Pendientes</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-2xl font-bold" style={{ color: '#C73870' }}>
                 {filteredAppointments.filter(a => a.status === AppointmentStatus.COMPLETED).length}
               </p>
               <p className="text-sm text-gray-600">Completados</p>

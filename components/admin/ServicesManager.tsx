@@ -101,7 +101,7 @@ export function ServicesManager() {
 
       {/* Formulario de creación */}
       {isCreating && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border" style={{ borderColor: '#6E52FF40', backgroundColor: '#6E52FF20' }}>
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Nuevo Servicio</CardTitle>
@@ -236,7 +236,7 @@ export function ServicesManager() {
                     <span>{service.duration} min</span>
                   </div>
                   {service.price && (
-                    <div className="flex items-center gap-1 text-sm font-semibold text-blue-600">
+                    <div className="flex items-center gap-1 text-sm font-semibold" style={{ color: '#6E52FF' }}>
                       <DollarSign className="w-4 h-4" />
                       <span>${Number(service.price).toLocaleString()}</span>
                     </div>

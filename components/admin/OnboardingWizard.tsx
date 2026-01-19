@@ -73,8 +73,8 @@ export function OnboardingWizard() {
   const [data, setData] = useState<OnboardingData>({
     businessName: "",
     email: "",
-    primaryColor: "#3b82f6",
-    secondaryColor: "#10b981",
+    primaryColor: "#6E52FF",
+    secondaryColor: "#C73870",
     serviceName: "",
     serviceDuration: 30,
     servicePrice: 0,
@@ -253,8 +253,8 @@ export function OnboardingWizard() {
             {/* Welcome Step */}
             {currentStep === "welcome" && (
               <div className="text-center space-y-6">
-                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-10 h-10 text-blue-600" />
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: '#6E52FF20' }}>
+                  <CheckCircle2 className="w-10 h-10" style={{ color: '#6E52FF' }} />
                 </div>
                 <div>
                   <h2 className="text-3xl font-bold mb-2">¡Bienvenido a Turnero!</h2>
@@ -264,19 +264,24 @@ export function OnboardingWizard() {
                 </div>
                 <div className="space-y-4 pt-4">
                   <div className="flex items-center gap-3 text-left">
-                    <Check className="w-5 h-5 text-green-600" />
+                    <Check className="w-5 h-5" style={{ color: '#C73870' }} />
                     <span>Configuración paso a paso guiada</span>
                   </div>
                   <div className="flex items-center gap-3 text-left">
-                    <Check className="w-5 h-5 text-green-600" />
+                    <Check className="w-5 h-5" style={{ color: '#C73870' }} />
                     <span>Preview en tiempo real</span>
                   </div>
                   <div className="flex items-center gap-3 text-left">
-                    <Check className="w-5 h-5 text-green-600" />
+                    <Check className="w-5 h-5" style={{ color: '#C73870' }} />
                     <span>Valores por defecto inteligentes</span>
                   </div>
                 </div>
-                <Button size="lg" onClick={nextStep} className="mt-8">
+                <Button 
+                  size="lg" 
+                  onClick={nextStep} 
+                  className="mt-8 text-white"
+                  style={{ backgroundColor: '#6E52FF' }}
+                >
                   Comenzar configuración
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -287,7 +292,7 @@ export function OnboardingWizard() {
             {currentStep === "business" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <Building2 className="w-6 h-6 text-blue-600" />
+                  <Building2 className="w-6 h-6" style={{ color: '#6E52FF' }} />
                   <h2 className="text-2xl font-bold">Información de tu Negocio</h2>
                 </div>
                 <div className="space-y-4">
@@ -407,7 +412,12 @@ export function OnboardingWizard() {
                     <ArrowLeft className="mr-2 w-4 h-4" />
                     Atrás
                   </Button>
-                  <Button onClick={nextStep} disabled={!data.businessName || !data.email}>
+                  <Button 
+                    onClick={nextStep} 
+                    disabled={!data.businessName || !data.email}
+                    className="text-white"
+                    style={{ backgroundColor: '#6E52FF' }}
+                  >
                     Continuar
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -419,7 +429,7 @@ export function OnboardingWizard() {
             {currentStep === "branding" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <Palette className="w-6 h-6 text-blue-600" />
+                  <Palette className="w-6 h-6" style={{ color: '#6E52FF' }} />
                   <h2 className="text-2xl font-bold">Personalización Visual</h2>
                 </div>
                 <div className="grid md:grid-cols-2 gap-8">
@@ -477,7 +487,11 @@ export function OnboardingWizard() {
                     <ArrowLeft className="mr-2 w-4 h-4" />
                     Atrás
                   </Button>
-                  <Button onClick={nextStep}>
+                  <Button 
+                    onClick={nextStep}
+                    className="text-white"
+                    style={{ backgroundColor: '#6E52FF' }}
+                  >
                     Continuar
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -489,7 +503,7 @@ export function OnboardingWizard() {
             {currentStep === "service" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <Briefcase className="w-6 h-6 text-blue-600" />
+                  <Briefcase className="w-6 h-6" style={{ color: '#6E52FF' }} />
                   <h2 className="text-2xl font-bold">Tu Primer Servicio</h2>
                 </div>
                 <div className="space-y-4">
@@ -532,7 +546,12 @@ export function OnboardingWizard() {
                     <ArrowLeft className="mr-2 w-4 h-4" />
                     Atrás
                   </Button>
-                  <Button onClick={nextStep} disabled={!data.serviceName}>
+                  <Button 
+                    onClick={nextStep} 
+                    disabled={!data.serviceName}
+                    className="text-white"
+                    style={{ backgroundColor: '#6E52FF' }}
+                  >
                     Continuar
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -544,7 +563,7 @@ export function OnboardingWizard() {
             {currentStep === "professional" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <User className="w-6 h-6 text-blue-600" />
+                  <User className="w-6 h-6" style={{ color: '#6E52FF' }} />
                   <h2 className="text-2xl font-bold">Profesional</h2>
                 </div>
                 <div className="space-y-4">
@@ -579,7 +598,12 @@ export function OnboardingWizard() {
                     <ArrowLeft className="mr-2 w-4 h-4" />
                     Atrás
                   </Button>
-                  <Button onClick={nextStep} disabled={!data.professionalName || !data.professionalLastName}>
+                  <Button 
+                    onClick={nextStep} 
+                    disabled={!data.professionalName || !data.professionalLastName}
+                    className="text-white"
+                    style={{ backgroundColor: '#6E52FF' }}
+                  >
                     Continuar
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -591,7 +615,7 @@ export function OnboardingWizard() {
             {currentStep === "schedule" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <Clock className="w-6 h-6 text-blue-600" />
+                  <Clock className="w-6 h-6" style={{ color: '#6E52FF' }} />
                   <h2 className="text-2xl font-bold">Horarios de Atención</h2>
                 </div>
                 <div className="space-y-4">
@@ -664,7 +688,11 @@ export function OnboardingWizard() {
                     <ArrowLeft className="mr-2 w-4 h-4" />
                     Atrás
                   </Button>
-                  <Button onClick={nextStep}>
+                  <Button 
+                    onClick={nextStep}
+                    className="text-white"
+                    style={{ backgroundColor: '#6E52FF' }}
+                  >
                     Continuar
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -675,8 +703,8 @@ export function OnboardingWizard() {
             {/* Complete Step */}
             {currentStep === "complete" && (
               <div className="text-center space-y-6">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-10 h-10 text-green-600" />
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: '#C7387020' }}>
+                  <CheckCircle2 className="w-10 h-10" style={{ color: '#C73870' }} />
                 </div>
                 <div>
                   <h2 className="text-3xl font-bold mb-2">¡Tu Turnero está Listo!</h2>
@@ -684,7 +712,10 @@ export function OnboardingWizard() {
                     Comparte este link con tus clientes para que reserven turnos
                   </p>
                 </div>
-                <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">
+                <Card 
+                  className="text-white border-0"
+                  style={{ background: 'linear-gradient(135deg, #6E52FF 0%, #C73870 100%)' }}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <LinkIcon className="w-5 h-5" />
@@ -708,6 +739,8 @@ export function OnboardingWizard() {
                     size="lg" 
                     onClick={handleComplete}
                     disabled={isSubmitting}
+                    className="text-white"
+                    style={{ backgroundColor: '#6E52FF' }}
                   >
                     {isSubmitting ? (
                       <>
