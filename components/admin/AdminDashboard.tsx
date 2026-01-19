@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/utils"
+import Link from "next/link"
 
 type ViewType = "calendar" | "metrics" | "appointments" | "services" | "professionals" | "schedules" | "settings"
 
@@ -47,7 +48,7 @@ function AdminDashboardContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: '#6E52FF' }} />
           <p className="text-gray-600">Cargando información del negocio...</p>
         </div>
       </div>
@@ -98,7 +99,13 @@ function AdminDashboardContent() {
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Turnero</h2>
+              <Link href="/" className="flex items-center">
+                <img 
+                  src="/agendalo-logo.svg" 
+                  alt="agendalo" 
+                  className="h-6 w-auto"
+                />
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
@@ -121,9 +128,10 @@ function AdminDashboardContent() {
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     activeView === item.id
-                      ? "bg-blue-50 text-blue-700"
+                      ? "text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   )}
+                  style={activeView === item.id ? { backgroundColor: '#6E52FF' } : undefined}
                 >
                   <Icon className="w-5 h-5" />
                   <span>{item.label}</span>

@@ -55,12 +55,19 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="absolute top-4 left-4">
+        <img 
+          src="/agendalo-logo.svg" 
+          alt="agendalo" 
+          className="h-8 w-auto"
+        />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-            <Mail className="w-8 h-8 text-blue-600" />
+          <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: '#6E52FF20' }}>
+            <Mail className="w-8 h-8" style={{ color: '#6E52FF' }} />
           </div>
-          <CardTitle className="text-2xl font-bold">Iniciar Sesión</CardTitle>
+          <CardTitle className="text-2xl font-bold" style={{ color: '#1D1C2C' }}>Iniciar Sesión</CardTitle>
           <CardDescription>
             Ingresa tu email y te enviaremos un link mágico para acceder
           </CardDescription>

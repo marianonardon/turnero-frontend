@@ -8,11 +8,18 @@ import Link from "next/link"
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header con acceso admin */}
-      <header className="container mx-auto px-4 py-4">
-        <div className="flex justify-end">
+      {/* Header con logo agendalo y acceso admin */}
+      <header className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <img 
+              src="/agendalo-logo.svg" 
+              alt="agendalo" 
+              className="h-8 w-auto"
+            />
+          </Link>
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+            <Button variant="ghost" size="sm" style={{ color: '#3A3942' }} className="hover:bg-gray-100">
               <LogIn className="w-4 h-4 mr-2" />
               Soy Admin
             </Button>
@@ -23,9 +30,9 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6" style={{ color: '#1D1C2C' }}>
             Gestiona tus turnos online
-            <span className="text-blue-600"> en minutos</span>
+            <span style={{ color: '#6E52FF' }}> en minutos</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Reduce llamadas telefónicas, aumenta tu ocupación y profesionaliza tu negocio con nuestro sistema de turnos online.
@@ -33,7 +40,11 @@ export default function LandingPage() {
           <div className="flex flex-col items-center gap-4">
             <div className="flex gap-4 justify-center">
               <Link href="/onboarding">
-                <Button size="lg" className="text-lg px-8 py-6">
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8 py-6 text-white"
+                  style={{ backgroundColor: '#6E52FF' }}
+                >
                   Comenzar gratis
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -43,7 +54,7 @@ export default function LandingPage() {
               </Button>
             </div>
             <Link href="/login" className="text-sm text-gray-500 hover:text-gray-700 transition-colors mt-2">
-              ¿Ya eres administrador? <span className="text-blue-600 font-medium">Iniciar sesión</span>
+              ¿Ya eres administrador? <span style={{ color: '#6E52FF' }} className="font-medium">Iniciar sesión</span>
             </Link>
           </div>
         </div>
@@ -54,8 +65,8 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <Card>
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <Calendar className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#6E52FF20' }}>
+                <Calendar className="w-6 h-6" style={{ color: '#6E52FF' }} />
               </div>
               <h3 className="text-xl font-semibold mb-2">Reduce llamadas</h3>
               <p className="text-gray-600">
@@ -66,8 +77,8 @@ export default function LandingPage() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#C7387020' }}>
+                <TrendingUp className="w-6 h-6" style={{ color: '#C73870' }} />
               </div>
               <h3 className="text-xl font-semibold mb-2">Aumenta ocupación</h3>
               <p className="text-gray-600">
@@ -78,8 +89,8 @@ export default function LandingPage() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#6E52FF20' }}>
+                <Users className="w-6 h-6" style={{ color: '#6E52FF' }} />
               </div>
               <h3 className="text-xl font-semibold mb-2">Profesionaliza</h3>
               <p className="text-gray-600">
@@ -108,7 +119,7 @@ export default function LandingPage() {
               "Integración con calendarios (.ics)",
             ].map((feature, index) => (
               <div key={index} className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <Check className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#C73870' }} />
                 <span className="text-gray-700">{feature}</span>
               </div>
             ))}
@@ -133,7 +144,12 @@ export default function LandingPage() {
 
       {/* CTA Final */}
       <section className="container mx-auto px-4 py-20">
-        <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-12 text-white">
+        <div 
+          className="max-w-3xl mx-auto text-center rounded-2xl p-12 text-white"
+          style={{ 
+            background: 'linear-gradient(135deg, #6E52FF 0%, #C73870 100%)' 
+          }}
+        >
           <h2 className="text-3xl font-bold mb-4">
             ¿Listo para profesionalizar tu negocio?
           </h2>
