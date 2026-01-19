@@ -89,7 +89,8 @@ function LoginForm() {
             </div>
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full text-white" 
+              style={{ backgroundColor: '#6E52FF' }}
               disabled={isLoading}
               size="lg"
             >
