@@ -102,7 +102,7 @@ function AdminDashboardContent() {
               <Link href="/" className="flex items-center">
                 <img 
                   src="/agendalo-logo.svg" 
-                  alt="agendalo" 
+                  alt="Slolia" 
                   className="h-10 w-auto"
                 />
               </Link>

@@ -58,7 +58,7 @@ function LoginForm() {
       <div className="absolute top-4 left-4">
         <img 
           src="/agendalo-logo.svg" 
-          alt="agendalo" 
+          alt="Slolia" 
           className="h-12 w-auto"
         />
       </div>
