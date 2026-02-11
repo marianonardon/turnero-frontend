@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, AlertTriangle, RefreshCw } from "lucide-react"
 import { format, addDays, startOfDay, isSameDay } from "date-fns"
 import { es } from "date-fns/locale"
 import { Calendar } from "@/components/ui/calendar"
@@ -191,6 +191,26 @@ export function DateTimeSelection({
           ) : loadingAvailability ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+          ) : availabilityError ? (
+            <div className="text-center py-12">
+              <div className="flex flex-col items-center gap-3">
+                <AlertTriangle className="w-12 h-12 text-red-500" />
+                <div>
+                  <p className="text-red-600 font-semibold mb-1">Error al cargar horarios</p>
+                  <p className="text-sm text-gray-600">
+                    {(availabilityError as any)?.message || 'No se pudieron cargar los horarios disponibles'}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => refetchAvailability()}
+                  className="mt-2 gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Reintentar
+                </Button>
+              </div>
             </div>
           ) : timeSlots.length === 0 ? (
             <div className="text-center py-12 text-gray-500">

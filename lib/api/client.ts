@@ -84,6 +84,10 @@ class ApiClient {
       headers: Object.keys(headers),
     });
 
+    // Agregar timeout de 30 segundos para prevenir requests colgadas
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 segundos
+
     try {
       const response = await fetch(url, {
         ...options,
@@ -91,7 +95,10 @@ class ApiClient {
         // Agregar mode y credentials para CORS
         mode: 'cors',
         credentials: 'omit',
-      });
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId) // Limpiar timeout si la request completa
 
       if (!response.ok) {
         let errorData: any;
@@ -120,6 +127,17 @@ class ApiClient {
 
       return response.json();
     } catch (error: any) {
+      clearTimeout(timeoutId) // Limpiar timeout en caso de error
+
+      // Capturar timeout
+      if (error.name === 'AbortError') {
+        const timeoutError: ApiError = {
+          message: 'La solicitud tardó demasiado tiempo. Por favor, intenta nuevamente.',
+          statusCode: 408, // Request Timeout
+        }
+        throw timeoutError
+      }
+
       // Capturar errores de red (Failed to fetch, CORS, etc.)
       if (error instanceof TypeError && error.message.includes('fetch')) {
         console.error('[API Client] Error de red al conectar con:', url);

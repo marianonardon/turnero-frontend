@@ -1,21 +1,44 @@
 "use client"
 
 import { useState } from "react"
+import { z } from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { 
-  useProfessionals, 
-  useCreateProfessional, 
-  useUpdateProfessional, 
-  useDeleteProfessional 
+import {
+  useProfessionals,
+  useCreateProfessional,
+  useUpdateProfessional,
+  useDeleteProfessional
 } from "@/lib/api/hooks"
 import { useServices } from "@/lib/api/hooks"
-import { Plus, Edit, Trash2, X, Loader2 } from "lucide-react"
+import { Plus, Edit, Trash2, X, Loader2, AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import type { CreateProfessionalDto, UpdateProfessionalDto } from "@/lib/api/types"
+
+// Zod schema para validación robusta
+const professionalSchema = z.object({
+  firstName: z.string()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(100, "El nombre no puede exceder 100 caracteres"),
+  lastName: z.string()
+    .max(100, "El apellido no puede exceder 100 caracteres")
+    .optional(),
+  email: z.string()
+    .email("Email inválido")
+    .or(z.literal(""))
+    .optional(),
+  phone: z.string()
+    .max(20, "El teléfono no puede exceder 20 caracteres")
+    .optional(),
+  bio: z.string()
+    .max(500, "La bio no puede exceder 500 caracteres")
+    .optional(),
+  isActive: z.boolean(),
+  serviceIds: z.array(z.string()),
+})
 
 type CreateCourtDto = CreateProfessionalDto
 type UpdateCourtDto = UpdateProfessionalDto
@@ -40,17 +63,25 @@ export function ProfessionalsManager() {
   })
 
   const handleCreate = async () => {
-    if (!formData.firstName) {
-      toast.error('El nombre de la cancha es requerido')
+    // Preparar datos con fallback para lastName
+    const dataToValidate = {
+      ...formData,
+      lastName: formData.lastName || 'Pádel'
+    }
+
+    // Validar con Zod
+    const result = professionalSchema.safeParse(dataToValidate)
+
+    if (!result.success) {
+      const firstError = result.error.errors[0]
+      toast.error(firstError.message, {
+        description: `Campo: ${firstError.path.join('.')}`
+      })
       return
     }
 
     try {
-      const dataToSend = {
-        ...formData,
-        lastName: formData.lastName || 'Pádel'
-      }
-      await createCourt.mutateAsync(dataToSend)
+      await createCourt.mutateAsync(dataToValidate)
       toast.success('Cancha creada')
       setFormData({
         firstName: '',

@@ -1,20 +1,39 @@
 "use client"
 
 import { useState } from "react"
+import { z } from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { 
-  useServices, 
-  useCreateService, 
-  useUpdateService, 
-  useDeleteService 
+import {
+  useServices,
+  useCreateService,
+  useUpdateService,
+  useDeleteService
 } from "@/lib/api/hooks"
-import { Plus, Edit, Trash2, Clock, DollarSign, X, Loader2 } from "lucide-react"
+import { Plus, Edit, Trash2, Clock, DollarSign, X, Loader2, AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import type { CreateServiceDto, UpdateServiceDto } from "@/lib/api/types"
+
+// Zod schema para validación robusta
+const serviceSchema = z.object({
+  name: z.string()
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(100, "El nombre no puede exceder 100 caracteres"),
+  description: z.string()
+    .max(500, "La descripción no puede exceder 500 caracteres")
+    .optional(),
+  duration: z.number()
+    .min(30, "La duración mínima es 30 minutos")
+    .max(240, "La duración máxima es 240 minutos (4 horas)"),
+  price: z.number()
+    .min(0, "El precio no puede ser negativo")
+    .max(999999, "El precio es demasiado alto")
+    .optional(),
+  isActive: z.boolean(),
+})
 
 // Duraciones comunes para turnos de pádel
 const PADEL_DURATIONS = [
@@ -40,8 +59,14 @@ export function ServicesManager() {
   })
 
   const handleCreate = async () => {
-    if (!formData.name || !formData.duration) {
-      toast.error('Nombre y duración son requeridos')
+    // Validar con Zod
+    const result = serviceSchema.safeParse(formData)
+
+    if (!result.success) {
+      const firstError = result.error.errors[0]
+      toast.error(firstError.message, {
+        description: `Campo: ${firstError.path.join('.')}`
+      })
       return
     }
 
