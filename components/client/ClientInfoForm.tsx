@@ -8,16 +8,16 @@ import { Label } from "@/components/ui/label"
 import { ArrowLeft, AlertCircle } from "lucide-react"
 import type { Tenant } from "@/lib/api/types"
 
-// Zod schema para validación robusta
+// Zod schema para validación robusta (sincronizado con backend)
 const clientInfoSchema = z.object({
   name: z.string()
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(50, "El nombre no puede exceder 50 caracteres")
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "El nombre solo puede contener letras"),
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]+$/, "El nombre solo puede contener letras, espacios, apóstrofes y guiones"),
   lastName: z.string()
     .min(2, "El apellido debe tener al menos 2 caracteres")
     .max(50, "El apellido no puede exceder 50 caracteres")
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "El apellido solo puede contener letras"),
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]+$/, "El apellido solo puede contener letras, espacios, apóstrofes y guiones"),
   email: z.string()
     .email("Ingresa un email válido (ej: nombre@ejemplo.com)")
     .min(1, "El email es requerido"),

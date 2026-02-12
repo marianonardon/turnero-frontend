@@ -14,6 +14,7 @@ import {
 } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
 import { appointmentsApi } from "@/lib/api/endpoints"
+import { getStatusColors } from "@/lib/constants/appointmentColors"
 import {
   ChevronLeft,
   ChevronRight,
@@ -362,17 +363,17 @@ export function AppointmentsCalendar() {
                     const startTimeFormatted = `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`
                     const endTimeFormatted = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`
                     
+                    const statusColors = getStatusColors(apt.status)
+
                     return (
                       <div
                         key={apt.id}
                         onClick={() => setSelectedAppointment(apt)}
                         className={cn(
                           "absolute top-1 bottom-1 rounded-sm cursor-pointer transition-all hover:opacity-90 z-10 shadow-sm border-2",
-                          apt.status === AppointmentStatus.CONFIRMED 
-                            ? "bg-[#ccff00] text-[#0a4d8c] border-[#ccff00]" 
-                            : apt.status === AppointmentStatus.PENDING
-                            ? "bg-[#ccff00]/70 text-[#0a4d8c] border-[#ccff00]"
-                            : "bg-[#0a4d8c]/70 text-white border-[#0a4d8c]",
+                          statusColors.bg,
+                          statusColors.border,
+                          statusColors.text,
                           isLongDuration && "ring-2 ring-amber-400/50"
                         )}
                         style={{

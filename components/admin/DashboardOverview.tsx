@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAppointments } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
 import { useTenant } from "@/lib/api/hooks"
+import { getStatusColors } from "@/lib/constants/appointmentColors"
+import { cn } from "@/lib/utils"
 import {
   Calendar,
   DollarSign,
@@ -254,13 +256,10 @@ export function DashboardOverview() {
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-2 h-2 rounded-full ${
-                          appointment.status === "CONFIRMED"
-                            ? "bg-green-500"
-                            : appointment.status === "PENDING"
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                        }`}
+                        className={cn(
+                          "w-2 h-2 rounded-full",
+                          getStatusColors(appointment.status as any).bg
+                        )}
                       />
                       <div>
                         <p className="font-semibold">
