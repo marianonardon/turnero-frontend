@@ -3,6 +3,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTenantContext } from '../context/TenantContext';
 import {
   tenantsApi,
   servicesApi,
@@ -92,14 +93,17 @@ export const useDeleteTenant = () => {
 // ============================================
 
 export const useServices = () => {
+  const { tenantId } = useTenantContext();
+
   return useQuery({
-    queryKey: ['services'],
+    queryKey: ['services', tenantId],
     queryFn: async () => {
-      console.log('[useServices] Fetching services...');
+      console.log('[useServices] Fetching services with tenantId:', tenantId);
       const result = await servicesApi.getAll();
       console.log('[useServices] Services received:', result);
       return result;
     },
+    enabled: !!tenantId,
     retry: 1,
   });
 };
@@ -149,14 +153,17 @@ export const useDeleteService = () => {
 // ============================================
 
 export const useProfessionals = () => {
+  const { tenantId } = useTenantContext();
+
   return useQuery({
-    queryKey: ['professionals'],
+    queryKey: ['professionals', tenantId],
     queryFn: async () => {
-      console.log('[useProfessionals] Fetching professionals...');
+      console.log('[useProfessionals] Fetching professionals with tenantId:', tenantId);
       const result = await professionalsApi.getAll();
       console.log('[useProfessionals] Professionals received:', result);
       return result;
     },
+    enabled: !!tenantId,
     retry: 1,
   });
 };
@@ -214,9 +221,12 @@ export const useDeleteProfessional = () => {
 // ============================================
 
 export const useSchedules = () => {
+  const { tenantId } = useTenantContext();
+
   return useQuery({
-    queryKey: ['schedules'],
+    queryKey: ['schedules', tenantId],
     queryFn: () => schedulesApi.getAll(),
+    enabled: !!tenantId,
   });
 };
 
@@ -261,9 +271,12 @@ export const useDeleteSchedule = () => {
 // ============================================
 
 export const useCustomers = () => {
+  const { tenantId } = useTenantContext();
+
   return useQuery({
-    queryKey: ['customers'],
+    queryKey: ['customers', tenantId],
     queryFn: () => customersApi.getAll(),
+    enabled: !!tenantId,
   });
 };
 
@@ -282,9 +295,12 @@ export const useCreateCustomer = () => {
 // ============================================
 
 export const useAppointments = () => {
+  const { tenantId } = useTenantContext();
+
   return useQuery({
-    queryKey: ['appointments'],
+    queryKey: ['appointments', tenantId],
     queryFn: () => appointmentsApi.getAll(),
+    enabled: !!tenantId,
   });
 };
 
