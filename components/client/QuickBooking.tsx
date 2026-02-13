@@ -31,6 +31,8 @@ import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Service, Professional, TimeSlot, AppointmentStatus } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
+import { MobileSlotPicker } from "./MobileSlotPicker"
+import { useIsMobile } from "@/lib/hooks/useMediaQuery"
 
 // Constantes
 const HOUR_START = 8
@@ -101,7 +103,8 @@ export function QuickBooking() {
   const tenantSlug = params?.tenantSlug as string
   const { tenant } = useTenantContext()
   const queryClient = useQueryClient()
-  
+  const isMobile = useIsMobile()
+
   const { data: courts, isLoading: loadingCourts } = useProfessionals()
   const { data: services, isLoading: loadingServices } = useServices()
   
@@ -579,6 +582,75 @@ export function QuickBooking() {
     )
   }
 
+  // Preparar datos para vista mobile
+  const mobileCourtSlots = useMemo(() => {
+    if (!activeCourts.length || !sortedServices.length) return []
+
+    return activeCourts.map(court => {
+      const slots: Array<{
+        time: string
+        endTime: string
+        duration: number
+        price: number
+        available: boolean
+        service: Service
+      }> = []
+
+      // Generar todos los slots posibles del día
+      for (let slot = 0; slot < TOTAL_SLOTS; slot++) {
+        const time = slotToTime(slot)
+        const hour = parseInt(time.split(':')[0])
+
+        // Verificar si esta hora está disponible
+        if (!isHourAvailable(court.id, hour)) continue
+
+        // Para cada servicio, verificar si hay duración disponible
+        sortedServices.forEach(service => {
+          const endTime = addMinutesToTime(time, service.duration)
+          const available = isDurationAvailable(court.id, slot, service.duration)
+
+          if (available) {
+            // Evitar duplicados del mismo horario (puede haber múltiples servicios)
+            const exists = slots.some(s => s.time === time && s.duration === service.duration)
+            if (!exists) {
+              slots.push({
+                time,
+                endTime,
+                duration: service.duration,
+                price: service.price,
+                available: true,
+                service
+              })
+            }
+          }
+        })
+      }
+
+      return {
+        court,
+        slots: slots.sort((a, b) => a.time.localeCompare(b.time))
+      }
+    }).filter(cs => cs.slots.length > 0) // Solo mostrar canchas con slots disponibles
+  }, [activeCourts, sortedServices, availabilityMap, dayAppointments, selectedDate])
+
+  const handleMobileSlotSelect = (court: Professional, slot: {
+    time: string
+    endTime: string
+    duration: number
+    price: number
+    service: Service
+  }) => {
+    setSelectedSlot({
+      court,
+      date: selectedDate,
+      startTime: slot.time,
+      endTime: slot.endTime,
+      duration: slot.duration,
+      service: slot.service
+    })
+    setShowModal(true)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a4d8c] via-[#1565a8] to-[#1a6fc2]">
       {/* Líneas decorativas de cancha */}
@@ -691,9 +763,19 @@ export function QuickBooking() {
         </div>
       </div>
 
-      {/* Timeline Grid */}
-      <div className="max-w-6xl mx-auto px-6 py-8 relative z-10">
-        <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
+      {/* Timeline Grid - Desktop | Mobile Slot List */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-8 relative z-10">
+        {isMobile ? (
+          /* Vista Mobile - Lista de slots */
+          <MobileSlotPicker
+            date={selectedDate}
+            courtSlots={mobileCourtSlots}
+            onSelectSlot={handleMobileSlotSelect}
+            selectedSlot={selectedSlot ? { courtId: selectedSlot.court.id, time: selectedSlot.startTime } : null}
+          />
+        ) : (
+          /* Vista Desktop - Timeline */
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
           
           {/* Header con horas */}
           <div className="flex border-b border-gray-200 bg-[#0a4d8c]">
@@ -879,6 +961,7 @@ export function QuickBooking() {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       {/* Popup de duración */}
