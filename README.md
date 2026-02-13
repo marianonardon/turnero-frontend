@@ -362,3 +362,4 @@ Este es un proyecto en desarrollo. Para contribuir:
 
 **Desarrollado con ❤️ para negocios que buscan simplificar la gestión de turnos**
 
+# Force redeploy Fri Feb 13 17:06:17 -03 2026
