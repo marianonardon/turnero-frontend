@@ -617,7 +617,7 @@ export function QuickBooking() {
                 time,
                 endTime,
                 duration: service.duration,
-                price: service.price,
+                price: service.price ?? 0,
                 available: true,
                 service
               })
