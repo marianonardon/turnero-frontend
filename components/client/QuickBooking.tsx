@@ -194,40 +194,20 @@ export function QuickBooking() {
   }, [activeCourts, baseService, selectedDate, tenantSlug])
 
   const isHourAvailable = (courtId: string, hour: number): boolean => {
-    // El backend envía horas en UTC, pero el frontend genera horas locales
-    // Necesitamos convertir la hora local a UTC para buscar en el mapa
-    const timeLocal = `${hour.toString().padStart(2, '0')}:00`
-    
-    // Convertir hora local a UTC para buscar en el mapa del backend
-    // Si estamos en UTC-3, la hora local 20:00 es 23:00 UTC
-    // getTimezoneOffset() devuelve minutos positivos cuando estás al oeste de UTC
-    const offsetMinutes = new Date().getTimezoneOffset()
-    const offsetHours = offsetMinutes / 60
-    // Para convertir de local a UTC cuando estás al oeste: sumar el offset
-    const hourUTC = hour + offsetHours
-    
-    // Asegurarse de que la hora UTC esté en el rango válido (0-23)
-    const hourUTCNormalized = ((hourUTC % 24) + 24) % 24
-    const timeUTC = `${hourUTCNormalized.toString().padStart(2, '0')}:00`
-    
-    // Buscar primero con la hora UTC (como viene del backend)
-    let available = availabilityMap.get(`${courtId}-${timeUTC}`)
-    
-    // Si no se encuentra, buscar con la hora local (por si acaso)
-    if (available === undefined) {
-      available = availabilityMap.get(`${courtId}-${timeLocal}`)
-    }
-    
+    // El backend ahora devuelve horas en la zona horaria del tenant (hora local)
+    // No necesitamos conversiones de timezone
+    const timeStr = `${hour.toString().padStart(2, '0')}:00`
+
+    // Buscar disponibilidad en el mapa
+    const available = availabilityMap.get(`${courtId}-${timeStr}`)
+
     // Si la hora está explícitamente en el mapa, usar ese valor
     if (available !== undefined) {
       return available
     }
-    
-    // Si la hora no está en el mapa, verificar otras condiciones
-    // No verificar si está en el pasado aquí, porque eso se hace a nivel de slot en isSlotInPast
-    // Solo verificar que esté dentro del rango de horas posibles
-    // Si no está en el mapa pero está dentro del rango, asumir disponible
-    // (la verificación de pasado y conflictos se hace en isSlotInPast e isDurationAvailable)
+
+    // Si no está en el mapa, asumir disponible
+    // (las verificaciones de pasado y conflictos se manejan en isSlotInPast e isDurationAvailable)
     return true
   }
 
@@ -508,12 +488,20 @@ export function QuickBooking() {
 
     setIsBooking(true)
     try {
-      // Usar fecha/hora local del navegador (no UTC) para evitar problemas de timezone
-      const [hours, minutes] = selectedSlot.startTime.split(':').map(Number)
+      // Construir fecha/hora que el backend interpretará en el timezone del tenant
       const dateStr = format(selectedSlot.date, 'yyyy-MM-dd')
-      const [year, month, day] = dateStr.split('-').map(Number)
-      // Crear fecha local (no UTC) para que coincida con lo que ve el usuario
-      const startTime = new Date(year, month - 1, day, hours, minutes, 0, 0)
+      const timeStr = selectedSlot.startTime // Ya está en formato HH:MM
+
+      // Enviar como ISO string SIN la Z para que el backend lo interprete como hora local
+      const startTimeISO = `${dateStr}T${timeStr}:00`
+
+      console.log('📅 Creating appointment:', {
+        date: dateStr,
+        time: timeStr,
+        startTimeISO,
+        court: selectedSlot.court.firstName,
+        service: selectedSlot.service.name,
+      })
 
       const appointment = await appointmentsApi.createPublic(tenantSlug, {
         customerFirstName: bookingForm.name,
@@ -521,7 +509,7 @@ export function QuickBooking() {
         customerEmail: bookingForm.email,
         serviceId: selectedSlot.service.id,
         professionalId: selectedSlot.court.id,
-        startTime: startTime.toISOString(),
+        startTime: startTimeISO,
         status: 'CONFIRMED' as AppointmentStatus,
       })
 
