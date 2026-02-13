@@ -80,7 +80,7 @@ export function TenantProvider({
     }
   }, [user?.tenantId, initialTenantId]);
 
-  // Cargar tenant completo desde API
+  // Cargar tenant completo desde API (opcional - solo para obtener datos completos)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -97,15 +97,15 @@ export function TenantProvider({
         })
         .then((data: Tenant) => {
           setTenantState(data);
-          apiClient.setTenantId(data.id);
+          console.log('✅ [TenantContext] Tenant data loaded successfully:', data.name);
         })
         .catch((error) => {
-          console.error('Error loading tenant:', error);
-          // Si falla, limpiar localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('tenantId');
-          }
-          apiClient.setTenantId(null);
+          console.warn('⚠️ [TenantContext] Could not load tenant details, but tenantId is still set:', error.message);
+          // NO borrar el tenantId del apiClient - ya fue establecido en el useEffect anterior
+          // Solo limpiar localStorage si es necesario
+          // if (typeof window !== 'undefined') {
+          //   localStorage.removeItem('tenantId');
+          // }
         })
         .finally(() => setIsLoading(false));
     }
