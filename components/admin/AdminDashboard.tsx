@@ -217,10 +217,18 @@ function AdminDashboardContent() {
 export function AdminDashboard() {
   const searchParams = useSearchParams()
   const { user } = useAuth()
-  
+
   // Usar tenantId del usuario autenticado o del URL
   const tenantIdFromUrl = searchParams?.get('tenantId')
   const tenantId = user?.tenantId || tenantIdFromUrl
+
+  // 🔍 DIAGNOSTIC LOGGING
+  console.log('🏢 [AdminDashboard] Initializing with:', {
+    user: user ? { id: user.id, email: user.email, tenantId: user.tenantId } : 'NO USER',
+    tenantIdFromUrl,
+    finalTenantId: tenantId,
+    userObject: user
+  })
 
   return (
     <TenantProvider initialTenantId={tenantId}>

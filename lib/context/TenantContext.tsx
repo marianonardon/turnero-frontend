@@ -51,15 +51,32 @@ export function TenantProvider({
 
   // Marcar como montado y configurar tenantId desde usuario autenticado, URL o localStorage
   useEffect(() => {
+    console.log('🔄 [TenantContext] useEffect triggered with:', {
+      userTenantId: user?.tenantId,
+      initialTenantId,
+      localStorage: typeof window !== 'undefined' ? localStorage.getItem('tenantId') : 'SSR',
+      user: user ? { id: user.id, email: user.email, tenantId: user.tenantId } : 'NO USER'
+    });
+
     setMounted(true);
-    
+
     // Priorizar: user.tenantId > initialTenantId > localStorage
     const tenantId = user?.tenantId || initialTenantId || (typeof window !== 'undefined' ? localStorage.getItem('tenantId') : null);
-    
+
+    console.log('🎯 [TenantContext] Resolved tenantId:', tenantId, 'from:',
+      user?.tenantId ? 'user.tenantId' :
+      initialTenantId ? 'initialTenantId prop' :
+      localStorage.getItem('tenantId') ? 'localStorage' :
+      'NONE - NO SOURCE FOUND');
+
     if (tenantId) {
       setTenantIdState(tenantId);
       apiClient.setTenantId(tenantId);
-      console.log('[TenantContext] useEffect - tenantId set:', tenantId, 'from:', user?.tenantId ? 'user' : initialTenantId ? 'url' : 'localStorage');
+      console.log('✅ [TenantContext] apiClient.setTenantId called with:', tenantId);
+    } else {
+      console.error('❌ [TenantContext] NO TENANT ID FOUND - Cannot set apiClient.tenantId');
+      console.error('   This means the user is NOT authenticated or has no tenantId');
+      console.error('   Check: 1) Is user logged in? 2) Does user object have tenantId? 3) Is tenantId in URL?');
     }
   }, [user?.tenantId, initialTenantId]);
 

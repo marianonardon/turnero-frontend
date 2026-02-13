@@ -38,8 +38,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         if (typeof window !== 'undefined') {
           const storedUser = localStorage.getItem('auth_user')
+          console.log('🔑 [AuthContext] Loading user from localStorage:', storedUser ? 'FOUND' : 'NOT FOUND')
+
           if (storedUser) {
-            setUser(JSON.parse(storedUser))
+            const parsedUser = JSON.parse(storedUser)
+            console.log('👤 [AuthContext] User loaded:', {
+              id: parsedUser.id,
+              email: parsedUser.email,
+              tenantId: parsedUser.tenantId,
+              hasTenant: !!parsedUser.tenant
+            })
+            setUser(parsedUser)
+          } else {
+            console.warn('⚠️  [AuthContext] No user in localStorage - User is NOT authenticated')
           }
         }
       } catch (error) {
