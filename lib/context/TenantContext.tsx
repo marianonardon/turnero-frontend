@@ -89,17 +89,13 @@ export function TenantProvider({
 
     if (tenantIdToLoad && !tenant) {
       setIsLoading(true);
-      // Cargar tenant desde API
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/tenants/${tenantIdToLoad}`)
-        .then((res) => {
-          if (!res.ok) throw new Error('Tenant not found');
-          return res.json();
-        })
+      // Cargar tenant desde API usando apiClient para normalización correcta de URL
+      apiClient.get<Tenant>(`/tenants/${tenantIdToLoad}`)
         .then((data: Tenant) => {
           setTenantState(data);
           console.log('✅ [TenantContext] Tenant data loaded successfully:', data.name);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.warn('⚠️ [TenantContext] Could not load tenant details, but tenantId is still set:', error.message);
           // NO borrar el tenantId del apiClient - ya fue establecido en el useEffect anterior
           // Solo limpiar localStorage si es necesario
