@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**slotia** (formerly Turnero Web SaaS) is a multi-tenant B2B scheduling/booking platform built with Next.js 14. It allows businesses to manage appointments online with full branding customization.
+**PadelTurn** (formerly Turnero Web SaaS) is a multi-tenant B2B scheduling/booking platform built with Next.js 14. It allows businesses to manage appointments online with full branding customization.
 
 - **Target**: B2B SaaS (admin is the paying customer)
 - **Architecture**: Multi-tenant with tenant-branded client-facing pages
-- **Current Brand**: slotia (lowercase)
+- **Current Brand**: PadelTurn
 
 ## Development Commands
 
@@ -188,8 +188,8 @@ Dashboard tabs:
 ## Git Workflow
 
 - Main branch: `main`
-- Recent rebranding from "agendalo" to "slotia" (lowercase)
-- Brand references should always use "slotia" (lowercase)
+- Recent rebranding from "agendalo" → "slotia" → "PadelTurn"
+- Brand references should always use "PadelTurn"
 
 ## Additional Documentation
 

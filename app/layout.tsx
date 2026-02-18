@@ -8,7 +8,7 @@ import { AuthProvider } from "@/lib/context/AuthContext"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "slotia - Gestión de Turnos Online",
+  title: "PadelTurn - Gestión de Turnos Online",
   description: "Sistema profesional de gestión de turnos online",
 }
 
