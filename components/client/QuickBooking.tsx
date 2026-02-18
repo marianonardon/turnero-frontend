@@ -764,6 +764,7 @@ export function QuickBooking() {
         {isMobile ? (
           /* Vista Mobile - Lista de slots */
           <MobileSlotPicker
+            key={dateStr}
             date={selectedDate}
             courtSlots={mobileCourtSlots}
             onSelectSlot={handleMobileSlotSelect}
