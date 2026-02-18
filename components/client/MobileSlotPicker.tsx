@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { Clock, ChevronLeft, Info, CheckCircle2 } from "lucide-react"
+import { Clock, ChevronLeft, ChevronDown, ChevronUp, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Service, Professional } from "@/lib/api/types"
 
@@ -36,6 +36,7 @@ export function MobileSlotPicker({
   selectedSlot
 }: MobileSlotPickerProps) {
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [collapsedCourts, setCollapsedCourts] = useState<Set<string>>(new Set())
 
   // Agrupar slots por hora → { "09:00": [{ court, slot }, ...] }
   const slotsByTime = new Map<string, Array<{ court: Professional; slot: TimeSlot }>>()
@@ -47,7 +48,28 @@ export function MobileSlotPicker({
   })
   const sortedTimes = Array.from(slotsByTime.keys()).sort()
 
-  const courtsForSelectedTime = selectedTime ? (slotsByTime.get(selectedTime) ?? []) : []
+  // Agrupar por cancha para el horario seleccionado
+  const courtGroupsForTime = (() => {
+    if (!selectedTime) return []
+    const entries = slotsByTime.get(selectedTime) ?? []
+    const map = new Map<string, { court: Professional; slots: TimeSlot[] }>()
+    entries.forEach(({ court, slot }) => {
+      if (!map.has(court.id)) map.set(court.id, { court, slots: [] })
+      map.get(court.id)!.slots.push(slot)
+    })
+    // Ordenar slots por duración dentro de cada cancha
+    map.forEach(group => group.slots.sort((a, b) => a.duration - b.duration))
+    return Array.from(map.values())
+  })()
+
+  const toggleCourt = (courtId: string) => {
+    setCollapsedCourts(prev => {
+      const next = new Set(prev)
+      if (next.has(courtId)) next.delete(courtId)
+      else next.add(courtId)
+      return next
+    })
+  }
 
   if (sortedTimes.length === 0) {
     return (
@@ -119,79 +141,78 @@ export function MobileSlotPicker({
           </div>
         </div>
       ) : (
-        /* PASO 2: Canchas disponibles para el horario seleccionado */
+        /* PASO 2: Canchas con cards de precio/duración */
         <div className="px-4 space-y-3">
-          <p className="text-xs text-white/60 uppercase tracking-wider font-semibold">
-            Canchas disponibles a las {selectedTime}
+          <p className="text-xs text-white/60 uppercase tracking-wider font-semibold mb-1">
+            Reservar una cancha
+          </p>
+          <p className="text-xs text-white/40 -mt-2 mb-3">
+            Seleccioná una cancha según duración y/o precio
           </p>
 
-          {courtsForSelectedTime.map(({ court, slot }) => {
-            const isSelected =
-              selectedSlot?.courtId === court.id &&
-              selectedSlot?.time === slot.time
+          {courtGroupsForTime.map(({ court, slots }) => {
+            const isCollapsed = collapsedCourts.has(court.id)
+            const courtDescription = [court.bio].filter(Boolean).join(' | ')
 
             return (
-              <button
-                key={court.id}
-                onClick={() => onSelectSlot(court, slot)}
-                className={cn(
-                  "w-full text-left rounded-2xl overflow-hidden transition-all duration-200",
-                  "active:scale-[0.98]",
-                  isSelected
-                    ? "ring-2 ring-[#ccff00] shadow-lg shadow-[#ccff00]/20"
-                    : "shadow-md hover:shadow-xl"
-                )}
-              >
-                <div className={cn(
-                  "p-4 flex items-center justify-between gap-4 bg-white",
-                  isSelected && "bg-[#ccff00]/10"
-                )}>
-                  {/* Info de la cancha */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-[#0a4d8c]/10 flex items-center justify-center shrink-0">
-                        <span className="text-lg font-bold text-[#0a4d8c]">
-                          {court.firstName.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-bold text-[#0a4d8c] text-base truncate leading-tight">
-                          {court.firstName}
-                          {court.lastName ? ` ${court.lastName}` : ""}
-                        </div>
-                        <div className="text-xs text-gray-500 truncate">{slot.service.name}</div>
-                      </div>
+              <div key={court.id} className="bg-white rounded-2xl overflow-hidden shadow-md">
+                {/* Header de la cancha */}
+                <button
+                  onClick={() => toggleCourt(court.id)}
+                  className="w-full flex items-start justify-between p-4 text-left active:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-1 min-w-0 pr-3">
+                    <div className="text-lg font-bold text-gray-900 leading-tight">
+                      {court.firstName}{court.lastName ? ` ${court.lastName}` : ""}
                     </div>
-
-                    <div className="flex items-center gap-2 mt-2.5 ml-12">
-                      <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                        <Clock className="w-3 h-3" />
-                        {slot.duration} min
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {slot.time} → {slot.endTime}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Precio + CTA */}
-                  <div className="text-right shrink-0">
-                    <div className="text-2xl font-bold text-[#0a4d8c] tabular-nums leading-tight">
-                      ${Number(slot.price).toLocaleString('es-AR')}
-                    </div>
-                    {isSelected ? (
-                      <div className="flex items-center justify-end gap-1 mt-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                        <span className="text-xs font-semibold text-green-600">Seleccionada</span>
-                      </div>
-                    ) : (
-                      <div className="mt-1 bg-[#0a4d8c] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                        Reservar
+                    {courtDescription && (
+                      <div className="text-sm text-gray-500 mt-0.5 leading-snug">
+                        {courtDescription}
                       </div>
                     )}
                   </div>
-                </div>
-              </button>
+                  {isCollapsed
+                    ? <ChevronDown className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
+                    : <ChevronUp className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
+                  }
+                </button>
+
+                {/* Cards de opciones de precio/duración */}
+                {!isCollapsed && (
+                  <div className="px-4 pb-4 grid grid-cols-2 gap-3">
+                    {slots.map((slot) => {
+                      const isSelected =
+                        selectedSlot?.courtId === court.id &&
+                        selectedSlot?.time === slot.time
+                      return (
+                        <button
+                          key={slot.duration}
+                          onClick={() => onSelectSlot(court, slot)}
+                          className={cn(
+                            "flex flex-col items-center justify-center py-4 px-3 rounded-xl",
+                            "transition-all duration-150 active:scale-95",
+                            isSelected
+                              ? "bg-[#0a4d8c] text-white shadow-lg ring-2 ring-[#0a4d8c]"
+                              : "bg-[#c8f5c8] text-[#1a6b3a] hover:bg-[#b2edb2]"
+                          )}
+                        >
+                          <span className="text-2xl font-bold tabular-nums leading-tight">
+                            ${Number(slot.price).toLocaleString('es-AR')}
+                          </span>
+                          <span className="text-sm font-medium mt-1 opacity-80">
+                            {slot.duration} min
+                          </span>
+                          {isSelected && (
+                            <span className="text-[10px] font-semibold mt-1.5 bg-white/20 px-2 py-0.5 rounded-full">
+                              ✓ Seleccionada
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             )
           })}
         </div>
