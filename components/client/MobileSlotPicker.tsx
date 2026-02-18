@@ -119,7 +119,7 @@ export function MobileSlotPicker({
           </p>
           <div className="grid grid-cols-3 gap-2.5">
             {sortedTimes.map((time) => {
-              const count = slotsByTime.get(time)!.length
+              const count = new Set(slotsByTime.get(time)!.map(e => e.court.id)).size
               return (
                 <button
                   key={time}
@@ -192,8 +192,8 @@ export function MobileSlotPicker({
                             "flex flex-col items-center justify-center py-4 px-3 rounded-xl",
                             "transition-all duration-150 active:scale-95",
                             isSelected
-                              ? "bg-[#0a4d8c] text-white shadow-lg ring-2 ring-[#0a4d8c]"
-                              : "bg-[#c8f5c8] text-[#1a6b3a] hover:bg-[#b2edb2]"
+                              ? "bg-[#ccff00] text-[#0a4d8c] shadow-lg ring-2 ring-[#ccff00]"
+                              : "bg-[#0a4d8c]/10 text-[#0a4d8c] hover:bg-[#0a4d8c]/20"
                           )}
                         >
                           <span className="text-2xl font-bold tabular-nums leading-tight">
