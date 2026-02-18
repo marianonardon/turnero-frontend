@@ -559,6 +559,53 @@ export function QuickBooking() {
     setBookingSuccess(false)
   }
 
+  // Preparar datos para vista mobile (antes de cualquier return condicional - Rules of Hooks)
+  const mobileCourtSlots = useMemo(() => {
+    if (!activeCourts.length || !sortedServices.length) return []
+
+    return activeCourts.map(court => {
+      const slots: Array<{
+        time: string
+        endTime: string
+        duration: number
+        price: number
+        available: boolean
+        service: Service
+      }> = []
+
+      for (let slot = 0; slot < TOTAL_SLOTS; slot++) {
+        const time = slotToTime(slot)
+        const hour = parseInt(time.split(':')[0])
+
+        if (!isHourAvailable(court.id, hour)) continue
+
+        sortedServices.forEach(service => {
+          const endTime = addMinutesToTime(time, service.duration)
+          const available = isDurationAvailable(court.id, slot, service.duration)
+
+          if (available) {
+            const exists = slots.some(s => s.time === time && s.duration === service.duration)
+            if (!exists) {
+              slots.push({
+                time,
+                endTime,
+                duration: service.duration,
+                price: service.price ?? 0,
+                available: true,
+                service
+              })
+            }
+          }
+        })
+      }
+
+      return {
+        court,
+        slots: slots.sort((a, b) => a.time.localeCompare(b.time))
+      }
+    }).filter(cs => cs.slots.length > 0)
+  }, [activeCourts, sortedServices, availabilityMap, dayAppointments, selectedDate])
+
   // Loading
   if (loadingCourts || loadingServices) {
     return (
@@ -581,57 +628,6 @@ export function QuickBooking() {
       </div>
     )
   }
-
-  // Preparar datos para vista mobile
-  const mobileCourtSlots = useMemo(() => {
-    if (!activeCourts.length || !sortedServices.length) return []
-
-    return activeCourts.map(court => {
-      const slots: Array<{
-        time: string
-        endTime: string
-        duration: number
-        price: number
-        available: boolean
-        service: Service
-      }> = []
-
-      // Generar todos los slots posibles del día
-      for (let slot = 0; slot < TOTAL_SLOTS; slot++) {
-        const time = slotToTime(slot)
-        const hour = parseInt(time.split(':')[0])
-
-        // Verificar si esta hora está disponible
-        if (!isHourAvailable(court.id, hour)) continue
-
-        // Para cada servicio, verificar si hay duración disponible
-        sortedServices.forEach(service => {
-          const endTime = addMinutesToTime(time, service.duration)
-          const available = isDurationAvailable(court.id, slot, service.duration)
-
-          if (available) {
-            // Evitar duplicados del mismo horario (puede haber múltiples servicios)
-            const exists = slots.some(s => s.time === time && s.duration === service.duration)
-            if (!exists) {
-              slots.push({
-                time,
-                endTime,
-                duration: service.duration,
-                price: service.price ?? 0,
-                available: true,
-                service
-              })
-            }
-          }
-        })
-      }
-
-      return {
-        court,
-        slots: slots.sort((a, b) => a.time.localeCompare(b.time))
-      }
-    }).filter(cs => cs.slots.length > 0) // Solo mostrar canchas con slots disponibles
-  }, [activeCourts, sortedServices, availabilityMap, dayAppointments, selectedDate])
 
   const handleMobileSlotSelect = (court: Professional, slot: {
     time: string
