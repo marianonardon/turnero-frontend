@@ -25,7 +25,8 @@ import {
 } from "lucide-react"
 import { useProfessionals, useServices, useDayAppointments } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
-import { useParams } from "next/navigation"
+import { CustomerAuthProvider, useCustomerAuth } from "@/lib/context/CustomerAuthContext"
+import { useParams, useRouter } from "next/navigation"
 import { appointmentsApi } from "@/lib/api/endpoints"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
@@ -98,20 +99,22 @@ const addMinutesToTime = (time: string, minutes: number): string => {
   return `${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}`
 }
 
-export function QuickBooking() {
+function QuickBookingContent() {
   const params = useParams()
+  const router = useRouter()
   const tenantSlug = params?.tenantSlug as string
   const { tenant } = useTenantContext()
   const queryClient = useQueryClient()
   const isMobile = useIsMobile()
+  const { user, isAuthenticated } = useCustomerAuth()
 
   const { data: courts, isLoading: loadingCourts } = useProfessionals()
   const { data: services, isLoading: loadingServices } = useServices()
-  
+
   const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()))
   const [availabilityMap, setAvailabilityMap] = useState<Map<string, boolean>>(new Map())
   const [loadingAvailability, setLoadingAvailability] = useState(false)
-  
+
   const [activeSelection, setActiveSelection] = useState<{
     courtId: string
     startSlot: number
@@ -122,9 +125,10 @@ export function QuickBooking() {
     courtId: string
     slot: number
   } | null>(null)
-  
+
   const [selectedSlot, setSelectedSlot] = useState<BookingSelection | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
   const [bookingForm, setBookingForm] = useState({ name: "", lastName: "", email: "" })
   const [isBooking, setIsBooking] = useState(false)
   const [bookingSuccess, setBookingSuccess] = useState(false)
@@ -195,6 +199,18 @@ export function QuickBooking() {
     }
     loadAllAvailability()
   }, [activeCourts, baseService, selectedDate, tenantSlug])
+
+  // Pre-completar formulario si el usuario está autenticado
+  useEffect(() => {
+    if (user) {
+      const [firstName, ...lastNameParts] = user.name.split(' ')
+      setBookingForm({
+        name: firstName || '',
+        lastName: lastNameParts.join(' ') || '',
+        email: user.email
+      })
+    }
+  }, [user])
 
   const isHourAvailable = (courtId: string, hour: number): boolean => {
     // El backend ahora devuelve horas en la zona horaria del tenant (hora local)
@@ -462,9 +478,9 @@ export function QuickBooking() {
 
   const handleSelectDuration = (option: DurationOption) => {
     if (!activeSelection || !option.available || !option.service) return
-    
+
     const startTime = slotToTime(activeSelection.startSlot)
-    
+
     setSelectedSlot({
       court: activeSelection.court,
       date: selectedDate,
@@ -475,7 +491,13 @@ export function QuickBooking() {
     })
     setActiveSelection(null)
     setHoveredDuration(null)
-    setShowModal(true)
+
+    // Verificar autenticación antes de mostrar modal de booking
+    if (!isAuthenticated) {
+      setShowLoginModal(true)
+    } else {
+      setShowModal(true)
+    }
   }
 
   const handleCloseSelection = () => {
@@ -644,7 +666,13 @@ export function QuickBooking() {
       duration: slot.duration,
       service: slot.service
     })
-    setShowModal(true)
+
+    // Verificar autenticación antes de mostrar modal de booking
+    if (!isAuthenticated) {
+      setShowLoginModal(true)
+    } else {
+      setShowModal(true)
+    }
   }
 
   return (
@@ -674,9 +702,22 @@ export function QuickBooking() {
               </div>
             </div>
             
-            <div className="hidden md:flex items-center gap-2 text-sm text-white/60 bg-white/10 px-3 py-1.5 rounded-full">
-              <div className="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse" />
-              Reserva en segundos
+            <div className="flex items-center gap-3">
+              {isAuthenticated && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push(`/${tenantSlug}/mis-reservas`)}
+                  className="text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Mis reservas
+                </Button>
+              )}
+              <div className="hidden md:flex items-center gap-2 text-sm text-white/60 bg-white/10 px-3 py-1.5 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse" />
+                Reserva en segundos
+              </div>
             </div>
           </div>
         </div>
@@ -1166,6 +1207,70 @@ export function QuickBooking() {
           </Card>
         </div>
       )}
+
+      {/* Modal de login para clientes no autenticados */}
+      {showLoginModal && selectedSlot && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md bg-white shadow-2xl animate-in fade-in zoom-in duration-200 border-0">
+            <CardContent className="p-0">
+              <div className="p-6 bg-gradient-to-r from-[#0a4d8c] to-[#1a6fc2] rounded-t-lg">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-bold text-white">🔐 Accede para reservar</h3>
+                    <p className="text-blue-100/80 text-sm mt-1">Necesitas una cuenta para continuar</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowLoginModal(false)
+                      setSelectedSlot(null)
+                    }}
+                    className="text-white/60 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <div className="bg-[#0a4d8c]/5 rounded-xl p-4 mb-6 text-left text-sm border border-[#0a4d8c]/10">
+                  <h4 className="font-semibold text-[#0a4d8c] mb-2">Reserva seleccionada:</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-gray-500">Cancha</span>
+                      <p className="font-semibold text-[#0a4d8c]">{selectedSlot.court.fullName}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Horario</span>
+                      <p className="font-semibold text-[#0a4d8c]">{selectedSlot.startTime} - {selectedSlot.endTime}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 mb-4 text-center">
+                  Ingresa con tu email para confirmar tu reserva y ver tus turnos
+                </p>
+
+                <Button
+                  onClick={() => router.push(`/${tenantSlug}/login`)}
+                  className="w-full bg-[#ccff00] hover:bg-[#d4ff33] text-[#0a4d8c] font-semibold"
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  Acceder con email
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
+  )
+}
+
+// Exportar componente wrapped con CustomerAuthProvider
+export function QuickBooking() {
+  return (
+    <CustomerAuthProvider>
+      <QuickBookingContent />
+    </CustomerAuthProvider>
   )
 }
