@@ -168,11 +168,11 @@ function MisReservasContent() {
 
   const getStatusBadge = (status: Appointment["status"]) => {
     const variants = {
-      PENDING: { variant: "secondary" as const, icon: Clock, label: "Pendiente" },
+      PENDING: { variant: "secondary" as const, icon: Clock, label: "Pendiente", className: "" },
       CONFIRMED: { variant: "default" as const, icon: CheckCircle2, label: "Confirmada", className: "bg-green-500" },
-      CANCELLED: { variant: "destructive" as const, icon: XCircle, label: "Cancelada" },
+      CANCELLED: { variant: "destructive" as const, icon: XCircle, label: "Cancelada", className: "" },
       COMPLETED: { variant: "default" as const, icon: CheckCircle2, label: "Completada", className: "bg-gray-500" },
-      NO_SHOW: { variant: "destructive" as const, icon: AlertCircle, label: "No asistió" },
+      NO_SHOW: { variant: "destructive" as const, icon: AlertCircle, label: "No asistió", className: "" },
     }
 
     const config = variants[status]
