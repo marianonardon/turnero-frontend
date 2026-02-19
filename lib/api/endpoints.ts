@@ -23,6 +23,8 @@ import type {
   LoginDto,
   VerifyTokenDto,
   AuthResponse,
+  CreateRecurringSeriesDto,
+  RecurringSeries,
 } from './types';
 
 // ============================================
@@ -147,6 +149,16 @@ export const appointmentsApi = {
         byPaymentMethod: Record<string, number>;
       };
     }>('/appointments/metrics'),
+  // Recurring Series
+  createRecurringSeries: (data: CreateRecurringSeriesDto) =>
+    apiClient.post<{ series: RecurringSeries; appointmentsCreated: number }>(
+      '/appointments/recurring',
+      data
+    ),
+  cancelRecurringSeries: (seriesId: string) =>
+    apiClient.delete<{ message: string }>(`/appointments/recurring/${seriesId}`),
+  cancelRecurringSeriesFrom: (seriesId: string, fromDate: string) =>
+    apiClient.delete<{ message: string }>(`/appointments/recurring/${seriesId}/from/${fromDate}`),
 };
 
 // ============================================

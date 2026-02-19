@@ -27,6 +27,7 @@ import type {
   AvailabilityQuery,
   LoginDto,
   VerifyTokenDto,
+  CreateRecurringSeriesDto,
 } from './types';
 
 // ============================================
@@ -377,6 +378,43 @@ export const useMetrics = () => {
     queryFn: () => appointmentsApi.getMetrics(),
     enabled: !!tenantId,
     staleTime: 30000, // 30 segundos
+  });
+};
+
+// ============================================
+// RECURRING SERIES
+// ============================================
+
+export const useCreateRecurringSeries = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateRecurringSeriesDto) =>
+      appointmentsApi.createRecurringSeries(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
+  });
+};
+
+export const useCancelRecurringSeries = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (seriesId: string) =>
+      appointmentsApi.cancelRecurringSeries(seriesId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
+  });
+};
+
+export const useCancelRecurringSeriesFrom = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ seriesId, fromDate }: { seriesId: string; fromDate: string }) =>
+      appointmentsApi.cancelRecurringSeriesFrom(seriesId, fromDate),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    },
   });
 };
 

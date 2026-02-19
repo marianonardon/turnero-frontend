@@ -196,6 +196,33 @@ export interface AppointmentExtra {
   createdAt: string;
 }
 
+export interface RecurringSeries {
+  id: string;
+  tenantId: string;
+  customerId: string;
+  serviceId: string;
+  professionalId: string;
+  dayOfWeek: number; // 0-6 (Domingo-Sábado)
+  startTime: string; // "HH:mm"
+  weeksAhead: number;
+  seriesStart: string;
+  seriesEnd?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRecurringSeriesDto {
+  customerId: string;
+  serviceId: string;
+  professionalId: string;
+  dayOfWeek: number;
+  startTime: string;
+  weeksAhead: number;
+  seriesStart: string;
+  seriesEnd?: string;
+}
+
 /**
  * Appointment representa una Reserva de cancha de pádel.
  * - service: Tipo de turno (duración)
@@ -229,6 +256,10 @@ export interface Appointment {
   totalAmount?: number;
   // Extras
   extras?: AppointmentExtra[];
+  // Recurrencia
+  recurringSeriesId?: string;
+  recurringSeries?: RecurringSeries;
+  recurringSeriesIdx?: number;
   notes?: string;
   createdAt: string;
   updatedAt: string;

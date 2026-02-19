@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge"
 import {
   useAppointments,
   useUpdateAppointment,
-  useDeleteAppointment
+  useDeleteAppointment,
+  useCancelRecurringSeries,
+  useCancelRecurringSeriesFrom,
 } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
 import {
@@ -19,6 +21,8 @@ import {
   Clock,
   Loader2,
   DollarSign,
+  Repeat,
+  Plus,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -39,14 +43,31 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { AppointmentStatus, Appointment } from "@/lib/api/types"
 import { PaymentModal } from "./PaymentModal"
+import { RecurringForm } from "./RecurringForm"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export function AppointmentsManager() {
   const { data: appointments, isLoading } = useAppointments()
   const updateAppointment = useUpdateAppointment()
   const deleteAppointment = useDeleteAppointment()
+  const cancelRecurringSeries = useCancelRecurringSeries()
+  const cancelRecurringSeriesFrom = useCancelRecurringSeriesFrom()
+
   const [searchTerm, setSearchTerm] = useState("")
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+  const [recurringFormOpen, setRecurringFormOpen] = useState(false)
+  const [cancelRecurringDialogOpen, setCancelRecurringDialogOpen] = useState(false)
+  const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null)
 
   const getStatusBadge = (status: AppointmentStatus) => {
     const variants = {
@@ -79,13 +100,24 @@ export function AppointmentsManager() {
     }
   }
 
-  const handleCancel = async (id: string) => {
+  const handleCancel = (appointment: Appointment) => {
+    // Si es un turno recurrente, mostrar diálogo de opciones
+    if (appointment.recurringSeriesId) {
+      setAppointmentToCancel(appointment)
+      setCancelRecurringDialogOpen(true)
+    } else {
+      // Turno normal, cancelar directamente
+      handleCancelSingle(appointment.id)
+    }
+  }
+
+  const handleCancelSingle = async (id: string) => {
     if (!confirm('¿Estás seguro de cancelar este turno?')) return
 
     try {
       await updateAppointment.mutateAsync({
         id,
-        data: { 
+        data: {
           status: AppointmentStatus.CANCELLED,
           cancelledAt: new Date().toISOString(),
           cancelledBy: 'admin',
@@ -94,6 +126,42 @@ export function AppointmentsManager() {
       toast.success('Turno cancelado')
     } catch (error: any) {
       toast.error(error?.message || 'Error al cancelar turno')
+    }
+  }
+
+  const handleCancelRecurringOption = async (option: 'single' | 'all' | 'from') => {
+    if (!appointmentToCancel) return
+
+    try {
+      if (option === 'single') {
+        // Cancelar solo este turno
+        await updateAppointment.mutateAsync({
+          id: appointmentToCancel.id,
+          data: {
+            status: AppointmentStatus.CANCELLED,
+            cancelledAt: new Date().toISOString(),
+            cancelledBy: 'admin',
+          },
+        })
+        toast.success('Turno cancelado')
+      } else if (option === 'all') {
+        // Cancelar toda la serie
+        await cancelRecurringSeries.mutateAsync(appointmentToCancel.recurringSeriesId!)
+        toast.success('Serie completa cancelada')
+      } else if (option === 'from') {
+        // Cancelar desde esta fecha
+        const fromDate = format(new Date(appointmentToCancel.startTime), 'yyyy-MM-dd')
+        await cancelRecurringSeriesFrom.mutateAsync({
+          seriesId: appointmentToCancel.recurringSeriesId!,
+          fromDate,
+        })
+        toast.success('Serie cancelada desde esta fecha')
+      }
+
+      setCancelRecurringDialogOpen(false)
+      setAppointmentToCancel(null)
+    } catch (error: any) {
+      toast.error(error?.message || 'Error al cancelar')
     }
   }
 
@@ -168,6 +236,10 @@ export function AppointmentsManager() {
           <h2 className="text-2xl font-bold">Gestión de Turnos</h2>
           <p className="text-gray-600">Administra todos los turnos agendados</p>
         </div>
+        <Button onClick={() => setRecurringFormOpen(true)} className="gap-2">
+          <Repeat className="w-4 h-4" />
+          Crear turno fijo
+        </Button>
       </div>
 
       {/* Filters */}
@@ -231,6 +303,12 @@ export function AppointmentsManager() {
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           {getStatusBadge(appointment.status)}
+                          {appointment.recurringSeriesId && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 gap-1">
+                              <Repeat className="w-3 h-3" />
+                              FIJO
+                            </Badge>
+                          )}
                           {appointment.isPaid && (
                             <Badge variant="default" className="bg-green-600 gap-1">
                               <DollarSign className="w-3 h-3" />
@@ -261,7 +339,7 @@ export function AppointmentsManager() {
                             {appointment.status !== 'CANCELLED' && (
                               <DropdownMenuItem
                                 className="text-red-600"
-                                onClick={() => handleCancel(appointment.id)}
+                                onClick={() => handleCancel(appointment)}
                               >
                                 Cancelar
                               </DropdownMenuItem>
@@ -298,6 +376,48 @@ export function AppointmentsManager() {
           window.location.reload()
         }}
       />
+
+      <RecurringForm
+        open={recurringFormOpen}
+        onOpenChange={setRecurringFormOpen}
+      />
+
+      <AlertDialog open={cancelRecurringDialogOpen} onOpenChange={setCancelRecurringDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar turno recurrente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Este turno pertenece a una serie recurrente. ¿Qué deseas hacer?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel onClick={() => {
+              setCancelRecurringDialogOpen(false)
+              setAppointmentToCancel(null)
+            }}>
+              Volver
+            </AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={() => handleCancelRecurringOption('single')}
+            >
+              Solo este turno
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleCancelRecurringOption('from')}
+            >
+              Desde esta fecha
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleCancelRecurringOption('all')}
+            >
+              Toda la serie
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
