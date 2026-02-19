@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  useAppointments, 
-  useUpdateAppointment, 
-  useDeleteAppointment 
+import {
+  useAppointments,
+  useUpdateAppointment,
+  useDeleteAppointment
 } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
 import {
@@ -18,6 +18,7 @@ import {
   XCircle,
   Clock,
   Loader2,
+  DollarSign,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -36,13 +37,16 @@ import {
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { AppointmentStatus } from "@/lib/api/types"
+import { AppointmentStatus, Appointment } from "@/lib/api/types"
+import { PaymentModal } from "./PaymentModal"
 
 export function AppointmentsManager() {
   const { data: appointments, isLoading } = useAppointments()
   const updateAppointment = useUpdateAppointment()
   const deleteAppointment = useDeleteAppointment()
   const [searchTerm, setSearchTerm] = useState("")
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
 
   const getStatusBadge = (status: AppointmentStatus) => {
     const variants = {
@@ -102,6 +106,11 @@ export function AppointmentsManager() {
     } catch (error: any) {
       toast.error(error?.message || 'Error al eliminar turno')
     }
+  }
+
+  const handleOpenPayment = (appointment: Appointment) => {
+    setSelectedAppointment(appointment)
+    setPaymentModalOpen(true)
   }
 
   // Eliminar turnos duplicados basándose en una combinación única de campos
@@ -219,7 +228,17 @@ export function AppointmentsManager() {
                       <TableCell>
                         {format(startDate, "HH:mm")} - {format(endDate, "HH:mm")}
                       </TableCell>
-                      <TableCell>{getStatusBadge(appointment.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          {getStatusBadge(appointment.status)}
+                          {appointment.isPaid && (
+                            <Badge variant="default" className="bg-green-600 gap-1">
+                              <DollarSign className="w-3 h-3" />
+                              PAGADO ${Number(appointment.totalAmount || 0).toLocaleString("es-AR")}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -233,15 +252,21 @@ export function AppointmentsManager() {
                                 Confirmar
                               </DropdownMenuItem>
                             )}
+                            {!appointment.isPaid && appointment.status !== 'CANCELLED' && (
+                              <DropdownMenuItem onClick={() => handleOpenPayment(appointment)}>
+                                <DollarSign className="w-4 h-4 mr-2" />
+                                Cobrar
+                              </DropdownMenuItem>
+                            )}
                             {appointment.status !== 'CANCELLED' && (
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-red-600"
                                 onClick={() => handleCancel(appointment.id)}
                               >
                                 Cancelar
                               </DropdownMenuItem>
                             )}
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="text-red-600"
                               onClick={() => handleDelete(appointment.id)}
                             >
@@ -258,6 +283,21 @@ export function AppointmentsManager() {
           )}
         </CardContent>
       </Card>
+
+      <PaymentModal
+        appointment={selectedAppointment}
+        open={paymentModalOpen}
+        onClose={() => {
+          setPaymentModalOpen(false)
+          setSelectedAppointment(null)
+        }}
+        onSuccess={() => {
+          setPaymentModalOpen(false)
+          setSelectedAppointment(null)
+          // Refrescar la lista
+          window.location.reload()
+        }}
+      />
     </div>
   )
 }

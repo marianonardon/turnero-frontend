@@ -186,6 +186,16 @@ export interface CreateCustomerDto {
   notes?: string;
 }
 
+export interface AppointmentExtra {
+  id: string;
+  tenantId: string;
+  appointmentId: string;
+  name: string;
+  unitPrice: number;
+  dividedAmong: number; // 0 = todos los jugadores
+  createdAt: string;
+}
+
 /**
  * Appointment representa una Reserva de cancha de pádel.
  * - service: Tipo de turno (duración)
@@ -211,6 +221,14 @@ export interface Appointment {
   cancelledBy?: string;
   reminderSentAt?: string;
   confirmationSentAt?: string;
+  // Pago
+  isPaid: boolean;
+  paidAt?: string;
+  paymentMethod?: string; // "efectivo" | "transferencia" | "qr"
+  playerCount: number;
+  totalAmount?: number;
+  // Extras
+  extras?: AppointmentExtra[];
   notes?: string;
   createdAt: string;
   updatedAt: string;

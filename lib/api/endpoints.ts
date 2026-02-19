@@ -122,6 +122,14 @@ export const appointmentsApi = {
   getDayAppointments: (tenantSlug: string, date: string) => {
     return apiClient.get<any[]>(`/appointments/day?tenantSlug=${tenantSlug}&date=${date}`);
   },
+  // Payment
+  pay: (id: string, data: { playerCount: number; paymentMethod: string }) =>
+    apiClient.patch<Appointment>(`/appointments/${id}/pay`, data),
+  // Extras
+  addExtra: (id: string, data: { name: string; unitPrice: number; dividedAmong: number }) =>
+    apiClient.post(`/appointments/${id}/extras`, data),
+  removeExtra: (id: string, extraId: string) =>
+    apiClient.delete(`/appointments/${id}/extras/${extraId}`),
 };
 
 // ============================================
