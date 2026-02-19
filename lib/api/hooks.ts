@@ -369,6 +369,17 @@ export const useDayAppointments = (tenantSlug: string | null, date: string | nul
   });
 };
 
+export const useMetrics = () => {
+  const { tenantId } = useTenantContext();
+
+  return useQuery({
+    queryKey: ['metrics', tenantId],
+    queryFn: () => appointmentsApi.getMetrics(),
+    enabled: !!tenantId,
+    staleTime: 30000, // 30 segundos
+  });
+};
+
 // ============================================
 // AUTH
 // ============================================

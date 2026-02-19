@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAppointments } from "@/lib/api/hooks"
+import { useAppointments, useMetrics } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
 import { useTenant } from "@/lib/api/hooks"
 import { getStatusColors } from "@/lib/constants/appointmentColors"
@@ -36,6 +36,7 @@ import { es } from "date-fns/locale"
 export function DashboardOverview() {
   const { tenant, tenantId } = useTenantContext()
   const { data: appointments, isLoading: loadingAppointments } = useAppointments()
+  const { data: metrics, isLoading: loadingMetrics } = useMetrics()
   const { data: tenantData } = useTenant(tenantId || '')
 
   // Calcular estadísticas
@@ -45,13 +46,8 @@ export function DashboardOverview() {
     return isSameDay(aptDate, today)
   }).length || 0
 
-  const monthRevenue = appointments?.reduce((total, apt) => {
-    const aptDate = new Date(apt.startTime)
-    if (aptDate.getMonth() === today.getMonth() && apt.status === 'COMPLETED') {
-      return total + (apt.service.price ? Number(apt.service.price) : 0)
-    }
-    return total
-  }, 0) || 0
+  // Usar métricas del backend (basado en isPaid=true, no status=COMPLETED)
+  const monthRevenue = metrics?.revenue.total || 0
 
   // Clientes únicos
   const uniqueCustomers = new Set(appointments?.map(apt => apt.customerId)).size
@@ -152,7 +148,7 @@ export function DashboardOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Ingresos del Mes
+              Ingresos Totales
             </CardTitle>
             <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
@@ -160,7 +156,17 @@ export function DashboardOverview() {
             <div className="text-2xl font-bold">
               ${monthRevenue.toLocaleString()}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Ingresos de turnos completados</p>
+            <p className="text-xs text-gray-500 mt-1">{metrics?.appointments.paid || 0} turnos pagados</p>
+            <div className="mt-2 text-xs text-gray-600 space-y-1">
+              <div className="flex justify-between">
+                <span>Canchas:</span>
+                <span className="font-semibold">${(metrics?.revenue.fromCourts || 0).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Extras:</span>
+                <span className="font-semibold">${(metrics?.revenue.fromExtras || 0).toLocaleString()}</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

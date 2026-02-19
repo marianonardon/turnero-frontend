@@ -130,6 +130,23 @@ export const appointmentsApi = {
     apiClient.post(`/appointments/${id}/extras`, data),
   removeExtra: (id: string, extraId: string) =>
     apiClient.delete(`/appointments/${id}/extras/${extraId}`),
+  // Metrics
+  getMetrics: () =>
+    apiClient.get<{
+      appointments: {
+        total: number;
+        confirmed: number;
+        cancelled: number;
+        paid: number;
+        unpaid: number;
+      };
+      revenue: {
+        total: number;
+        fromCourts: number;
+        fromExtras: number;
+        byPaymentMethod: Record<string, number>;
+      };
+    }>('/appointments/metrics'),
 };
 
 // ============================================
