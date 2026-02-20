@@ -35,6 +35,8 @@ import { toast } from "sonner"
 import { format, startOfWeek, eachDayOfInterval, isSameDay } from "date-fns"
 import { es } from "date-fns/locale"
 import { CreateAppointmentModal } from "./CreateAppointmentModal"
+import { AppointmentDetailModal } from "./AppointmentDetailModal"
+import type { Appointment } from "@/lib/api/types"
 
 export function DashboardOverview() {
   const { tenant, tenantId } = useTenantContext()
@@ -42,6 +44,8 @@ export function DashboardOverview() {
   const { data: metrics, isLoading: loadingMetrics } = useMetrics()
   const { data: tenantData } = useTenant(tenantId || '')
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
 
   // Calcular estadísticas
   const today = new Date()
@@ -274,7 +278,11 @@ export function DashboardOverview() {
                 return (
                   <div
                     key={appointment.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                    onClick={() => {
+                      setSelectedAppointment(appointment)
+                      setDetailModalOpen(true)
+                    }}
                   >
                     <div className="flex items-center gap-4">
                       <div
@@ -309,6 +317,15 @@ export function DashboardOverview() {
       <CreateAppointmentModal
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}
+      />
+
+      <AppointmentDetailModal
+        appointment={selectedAppointment}
+        open={detailModalOpen}
+        onClose={() => {
+          setDetailModalOpen(false)
+          setSelectedAppointment(null)
+        }}
       />
     </div>
   )
