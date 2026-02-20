@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAppointments, useMetrics } from "@/lib/api/hooks"
 import { useTenantContext } from "@/lib/context/TenantContext"
@@ -15,6 +16,7 @@ import {
   Copy,
   QrCode,
   Loader2,
+  Plus,
 } from "lucide-react"
 import {
   BarChart,
@@ -32,12 +34,14 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { format, startOfWeek, eachDayOfInterval, isSameDay } from "date-fns"
 import { es } from "date-fns/locale"
+import { CreateAppointmentModal } from "./CreateAppointmentModal"
 
 export function DashboardOverview() {
   const { tenant, tenantId } = useTenantContext()
   const { data: appointments, isLoading: loadingAppointments } = useAppointments()
   const { data: metrics, isLoading: loadingMetrics } = useMetrics()
   const { data: tenantData } = useTenant(tenantId || '')
+  const [createModalOpen, setCreateModalOpen] = useState(false)
 
   // Calcular estadísticas
   const today = new Date()
@@ -104,6 +108,18 @@ export function DashboardOverview() {
 
   return (
     <div className="space-y-6">
+      {/* Header con botón crear turno */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold">Dashboard</h2>
+          <p className="text-gray-600">Vista general de tu negocio</p>
+        </div>
+        <Button onClick={() => setCreateModalOpen(true)} className="gap-2">
+          <Plus className="w-4 h-4" />
+          Crear Turno
+        </Button>
+      </div>
+
       {/* Link para Compartir - DESTACADO */}
       <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">
         <CardContent className="p-6">
@@ -289,6 +305,11 @@ export function DashboardOverview() {
           )}
         </CardContent>
       </Card>
+
+      <CreateAppointmentModal
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+      />
     </div>
   )
 }

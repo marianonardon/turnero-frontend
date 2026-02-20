@@ -11,12 +11,13 @@ import {
   Mail,
   Download,
   Loader2,
+  Home,
 } from "lucide-react"
 import { BookingData } from "./ClientBooking"
 import { format, parse } from "date-fns"
 import { es } from "date-fns/locale"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { appointmentsApi } from "@/lib/api/endpoints"
 import { AppointmentStatus } from "@/lib/api/types"
@@ -34,6 +35,7 @@ export function BookingConfirmation({
   onNewBooking,
 }: BookingConfirmationProps) {
   const params = useParams()
+  const router = useRouter()
   const tenantSlug = params?.tenantSlug as string | undefined
   const { tenantId, tenant } = useTenantContext()
   const queryClient = useQueryClient()
@@ -373,28 +375,38 @@ export function BookingConfirmation({
       </Card>
 
       {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Button 
-          variant="outline" 
-          className="flex-1 gap-2" 
-          onClick={downloadCalendar}
-          style={{
-            borderColor: tenant?.primaryColor || '#3b82f6',
-            color: tenant?.primaryColor || '#3b82f6',
-          }}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            variant="outline"
+            className="flex-1 gap-2"
+            onClick={downloadCalendar}
+            style={{
+              borderColor: tenant?.primaryColor || '#3b82f6',
+              color: tenant?.primaryColor || '#3b82f6',
+            }}
+          >
+            <Download className="w-4 h-4" />
+            Agregar al Calendario
+          </Button>
+          <Button
+            onClick={onNewBooking}
+            className="flex-1"
+            style={{
+              backgroundColor: tenant?.primaryColor || '#3b82f6',
+              color: 'white',
+            }}
+          >
+            Reservar Otro Turno
+          </Button>
+        </div>
+        <Button
+          variant="ghost"
+          onClick={() => router.push(`/${effectiveTenantSlug}`)}
+          className="gap-2"
         >
-          <Download className="w-4 h-4" />
-          Agregar al Calendario
-        </Button>
-        <Button 
-          onClick={onNewBooking} 
-          className="flex-1"
-          style={{
-            backgroundColor: tenant?.primaryColor || '#3b82f6',
-            color: 'white',
-          }}
-        >
-          Reservar Otro Turno
+          <Home className="w-4 h-4" />
+          Volver al Inicio
         </Button>
       </div>
 
