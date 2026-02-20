@@ -54,6 +54,14 @@ class ApiClient {
       ...options.headers,
     };
 
+    // Agregar customer access token si está disponible
+    if (typeof window !== 'undefined') {
+      const customerAccessToken = localStorage.getItem('customer_access_token');
+      if (customerAccessToken) {
+        (headers as Record<string, string>)['Authorization'] = `Bearer ${customerAccessToken}`;
+      }
+    }
+
     // Agregar tenant ID si está disponible
     // Los endpoints públicos (como /tenants/slug/:slug) no requieren tenantId
     const isPublicEndpoint = endpoint.includes('/tenants/slug/') || 

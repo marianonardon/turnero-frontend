@@ -83,6 +83,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null)
     localStorage.removeItem('customer_user')
+    localStorage.removeItem('customer_access_token')
     console.log('👋 [CustomerAuthContext] User logged out')
   }
 

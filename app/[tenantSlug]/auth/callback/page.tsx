@@ -43,6 +43,9 @@ function CallbackContent() {
 
         console.log("✅ Token verificado exitosamente")
 
+        // Guardar accessToken en localStorage
+        localStorage.setItem('customer_access_token', response.accessToken)
+
         // Guardar usuario en contexto y localStorage
         setUser(response.user)
 
