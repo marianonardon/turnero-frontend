@@ -370,12 +370,12 @@ export const useDayAppointments = (tenantSlug: string | null, date: string | nul
   });
 };
 
-export const useMetrics = () => {
+export const useMetrics = (params?: { startDate?: string; endDate?: string }) => {
   const { tenantId } = useTenantContext();
 
   return useQuery({
-    queryKey: ['metrics', tenantId],
-    queryFn: () => appointmentsApi.getMetrics(),
+    queryKey: ['metrics', tenantId, params],
+    queryFn: () => appointmentsApi.getMetrics(params),
     enabled: !!tenantId,
     staleTime: 30000, // 30 segundos
   });

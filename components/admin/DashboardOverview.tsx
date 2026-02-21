@@ -17,6 +17,7 @@ import {
   QrCode,
   Loader2,
   Plus,
+  X,
 } from "lucide-react"
 import {
   BarChart,
@@ -41,7 +42,15 @@ import type { Appointment } from "@/lib/api/types"
 export function DashboardOverview() {
   const { tenant, tenantId } = useTenantContext()
   const { data: appointments, isLoading: loadingAppointments } = useAppointments()
-  const { data: metrics, isLoading: loadingMetrics } = useMetrics()
+
+  // Filtros de fecha para métricas
+  const [startDate, setStartDate] = useState<string>("")
+  const [endDate, setEndDate] = useState<string>("")
+
+  const { data: metrics, isLoading: loadingMetrics } = useMetrics(
+    startDate || endDate ? { startDate: startDate || undefined, endDate: endDate || undefined } : undefined
+  )
+
   const { data: tenantData } = useTenant(tenantId || '')
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -123,6 +132,55 @@ export function DashboardOverview() {
           Crear Turno
         </Button>
       </div>
+
+      {/* Filtros de fecha para métricas */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Desde
+              </label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Hasta
+              </label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            {(startDate || endDate) && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStartDate("")
+                  setEndDate("")
+                }}
+                className="gap-2"
+              >
+                <X className="w-4 h-4" />
+                Limpiar Filtros
+              </Button>
+            )}
+            {loadingMetrics && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Cargando métricas...
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Link para Compartir - DESTACADO */}
       <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">

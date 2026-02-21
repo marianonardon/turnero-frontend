@@ -133,7 +133,7 @@ export const appointmentsApi = {
   removeExtra: (id: string, extraId: string) =>
     apiClient.delete(`/appointments/${id}/extras/${extraId}`),
   // Metrics
-  getMetrics: () =>
+  getMetrics: (params?: { startDate?: string; endDate?: string }) =>
     apiClient.get<{
       appointments: {
         total: number;
@@ -148,7 +148,7 @@ export const appointmentsApi = {
         fromExtras: number;
         byPaymentMethod: Record<string, number>;
       };
-    }>('/appointments/metrics'),
+    }>('/appointments/metrics', { params }),
   // Recurring Series
   createRecurringSeries: (data: CreateRecurringSeriesDto) =>
     apiClient.post<{ series: RecurringSeries; appointmentsCreated: number }>(
